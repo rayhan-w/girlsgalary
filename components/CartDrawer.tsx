@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 
 interface CartDrawerProps {
@@ -20,6 +21,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
     removeFromCart,
     updateQuantity
   } = useCart();
+  const { language, t } = useLanguage();
 
   if (!isCartOpen) return null;
 
@@ -41,7 +43,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
         <div className="p-4 bg-[#141414] text-white flex items-center justify-between border-b border-[#D4AF37]/50">
           <div className="flex items-center gap-2">
             <ShoppingBag size={20} className="text-[#D4AF37]" />
-            <h2 className="font-semibold text-base">আপনার শপিং ব্যাগ ({cartCount})</h2>
+            <h2 className="font-semibold text-base">
+              {t('আপনার শপিং ব্যাগ', 'Your Shopping Bag')} ({cartCount})
+            </h2>
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
@@ -57,7 +61,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
           {diffForFree > 0 ? (
             <div>
               <p className="text-xs text-amber-900 font-medium">
-                আর মাত্র <span className="font-bold text-amber-700">{formatPrice(diffForFree)}</span> টাকার পণ্য যোগ করলেই পাচ্ছেন <span className="font-bold text-emerald-700">ফ্রি ডেলিভারি</span>!
+                {language === 'bn' ? (
+                  <>
+                    আর মাত্র <span className="font-bold text-amber-700">{formatPrice(diffForFree)}</span> টাকার পণ্য যোগ করলেই পাচ্ছেন <span className="font-bold text-emerald-700">ফ্রি ডেলিভারি</span>!
+                  </>
+                ) : (
+                  <>
+                    Add <span className="font-bold text-amber-700">{formatPrice(diffForFree)}</span> more for <span className="font-bold text-emerald-700">Free Nationwide Delivery</span>!
+                  </>
+                )}
               </p>
               <div className="w-full bg-amber-200 h-1.5 rounded-full mt-2 overflow-hidden">
                 <div
@@ -68,7 +80,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
             </div>
           ) : (
             <p className="text-xs text-emerald-800 font-bold flex items-center gap-1.5">
-              🎉 অভিনন্দন! আপনি সারা দেশে ফ্রি ডেলিভারি পাচ্ছেন!
+              {t('🎉 অভিনন্দন! আপনি সারা দেশে ফ্রি ডেলিভারি পাচ্ছেন!', '🎉 Congratulations! You have unlocked Free Delivery!')}
             </p>
           )}
         </div>
@@ -78,15 +90,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-500">
               <ShoppingBag size={48} className="text-zinc-300 mb-3" />
-              <p className="text-base font-semibold text-zinc-800">আপনার ব্যাগ খালি</p>
+              <p className="text-base font-semibold text-zinc-800">
+                {t('আপনার ব্যাগ খালি', 'Your bag is empty')}
+              </p>
               <p className="text-xs text-zinc-500 mt-1">
-                আপনার পছন্দের শাড়ি, থ্রি-পিস বা কুর্তি ব্যাগে যুক্ত করুন
+                {t(
+                  'আপনার পছন্দের শাড়ি, থ্রি-পিস বা কুর্তি ব্যাগে যুক্ত করুন',
+                  'Add your favorite saree, three piece or kurti to start shopping'
+                )}
               </p>
               <button
                 onClick={() => setIsCartOpen(false)}
                 className="mt-5 px-5 py-2.5 bg-[#D4AF37] text-black font-semibold rounded-lg text-xs hover:bg-[#b89528] transition-colors"
               >
-                শপিং শুরু করুন
+                {t('শপিং শুরু করুন', 'Start Shopping')}
               </button>
             </div>
           ) : (
@@ -113,8 +130,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
 
                     {(item.size || item.color) && (
                       <div className="flex items-center gap-2 mt-1 text-[11px] text-zinc-500">
-                        {item.size && <span className="bg-zinc-100 px-1.5 py-0.5 rounded">সাইজ: {item.size}</span>}
-                        {item.color && <span className="bg-zinc-100 px-1.5 py-0.5 rounded">কালার: {item.color}</span>}
+                        {item.size && (
+                          <span className="bg-zinc-100 px-1.5 py-0.5 rounded">
+                            {t('সাইজ: ', 'Size: ')}{item.size}
+                          </span>
+                        )}
+                        {item.color && (
+                          <span className="bg-zinc-100 px-1.5 py-0.5 rounded">
+                            {t('কালার: ', 'Color: ')}{item.color}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -154,11 +179,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
         {cart.length > 0 && (
           <div className="p-4 bg-zinc-50 border-t border-zinc-200">
             <div className="flex items-center justify-between text-sm text-zinc-600 mb-1">
-              <span>সাবটোটাল</span>
+              <span>{t('মোট মূল্য', 'Subtotal')}</span>
               <span className="text-base font-bold text-zinc-900">{formatPrice(cartSubtotal)}</span>
             </div>
             <p className="text-[11px] text-zinc-500 mb-3">
-              ডেলিভারি চার্জ চেকআউট পেইজে হিসাব করা হবে
+              {t('ডেলিভারি চার্জ চেকআউট পেইজে হিসাব করা হবে', 'Delivery charge will be calculated at checkout')}
             </p>
 
             <Link
@@ -166,7 +191,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ freeDeliveryThreshold = 
               onClick={() => setIsCartOpen(false)}
               className="w-full flex items-center justify-center gap-2 bg-[#D4AF37] hover:bg-[#b89528] text-black font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-98"
             >
-              <span>অর্ডার করতে এগিয়ে যান</span>
+              <span>{t('অর্ডার করতে এগিয়ে যান', 'Proceed to Checkout')}</span>
               <ArrowRight size={18} />
             </Link>
           </div>

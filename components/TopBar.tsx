@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Phone, MessageCircle, Globe } from 'lucide-react';
+import { Phone, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 interface TopBarProps {
@@ -13,9 +13,13 @@ interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({
   hotline = '01712-345678',
   whatsappNumber = '8801712345678',
-  topBarOffer = '🎉 ফ্রি ডেলিভারি সারা বাংলাদেশে ২,০০০ টাকার বেশি অর্ডারে!'
+  topBarOffer = '🎉 সারা বাংলাদেশে ফ্রি হোম ডেলিভারি ২,০০০ টাকার বেশি অর্ডারে!'
 }) => {
   const { language, setLanguage, t } = useLanguage();
+
+  const offerText = language === 'bn' 
+    ? '🎉 সারা বাংলাদেশে ফ্রি হোম ডেলিভারি ২,০০০ টাকার বেশি অর্ডারে!' 
+    : '🎉 Free nationwide home delivery on orders over ৳2,000!';
 
   return (
     <div className="bg-[#080808] text-zinc-300 text-xs py-2 px-4 border-b border-[#D4AF37]/30 shadow-xs">
@@ -23,7 +27,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         
         {/* Offer announcement */}
         <div className="font-medium text-[#F3E5AB] tracking-wide flex items-center justify-center gap-2">
-          <span>{topBarOffer}</span>
+          <span>{offerText}</span>
         </div>
 
         {/* Right side: Hotline, WhatsApp, and Language Switcher */}
@@ -55,7 +59,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <button
               type="button"
               onClick={() => setLanguage('bn')}
-              className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all ${
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
                 language === 'bn'
                   ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89528] text-black shadow-xs'
                   : 'text-zinc-400 hover:text-white'
@@ -66,13 +70,13 @@ export const TopBar: React.FC<TopBarProps> = ({
             <button
               type="button"
               onClick={() => setLanguage('en')}
-              className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all ${
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
                 language === 'en'
                   ? 'bg-gradient-to-r from-[#D4AF37] to-[#B89528] text-black shadow-xs'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              ENG
+              ENGLISH
             </button>
           </div>
 

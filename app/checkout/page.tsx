@@ -15,12 +15,14 @@ import {
 } from 'lucide-react';
 import { StorefrontLayout } from '@/components/StorefrontLayout';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 import { BANGLADESH_DISTRICTS, getZoneForDistrict } from '@/lib/districts';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, cartSubtotal, clearCart } = useCart();
+  const { language, t } = useLanguage();
 
   // Form Fields (Only 3 required fields)
   const [fullName, setFullName] = useState('');
@@ -100,14 +102,12 @@ export default function CheckoutPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setCouponError(data.error || 'ভুল কুপন কোড');
-        setAppliedCoupon(null);
+        setCouponError(data.error || (language === 'bn' ? 'কুপনটি সঠিক নয়।' : 'Invalid coupon code.'));
       } else {
         setAppliedCoupon(data.coupon);
-        setCouponError('');
       }
     } catch (err) {
-      setCouponError('কুপন যাচাই করতে সমস্যা হয়েছে');
+      setCouponError(language === 'bn' ? 'কুপন যাচাইয়ে সমস্যা হয়েছে।' : 'Error validating coupon.');
     } finally {
       setIsApplyingCoupon(false);
     }
@@ -117,30 +117,25 @@ export default function CheckoutPage() {
     e.preventDefault();
     setFormError('');
 
-    if (!fullName.trim()) {
-      setFormError('আপনার সম্পূর্ণ নাম লিখুন');
-      return;
-    }
-    if (!phone.trim() || phone.trim().length < 11) {
-      setFormError('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)');
-      return;
-    }
-    if (!address.trim()) {
-      setFormError('আপনার সম্পূর্ণ ডেলিভারি ঠিকানা দিন');
+    if (!fullName.trim() || !phone.trim() || !address.trim() || !district) {
+      setFormError(language === 'bn' ? 'অনুগ্রহ করে নাম, ফোন নম্বর, জেলা ও ঠিকানা প্রদান করুন।' : 'Please provide your full name, phone number, district, and delivery address.');
       return;
     }
 
-    if (cart.length === 0) {
-      setFormError('আপনার কার্ট খালি। অর্ডার করতে পণ্য ব্যাগে যোগ করুন।');
+    // BD Phone validation
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (cleanPhone.length < 11 || (!cleanPhone.startsWith('01') && !cleanPhone.startsWith('8801'))) {
+      setFormError(language === 'bn' ? 'অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর দিন।' : 'Please enter a valid 11-digit Bangladeshi mobile number.');
       return;
     }
 
-    if (paymentMethod !== 'COD' && (!senderPhone || !transactionId)) {
-      setFormError('বিকাশ/নগদ পেমেন্টের জন্য প্রেরক নম্বর ও TrxID প্রদান করুন');
+    if (paymentMethod !== 'COD' && (!senderPhone.trim() || !transactionId.trim())) {
+      setFormError(language === 'bn' ? 'অনুগ্রহ করে প্রেরক নম্বর ও TrxID প্রদান করুন।' : 'Please enter sender phone number and Transaction ID.');
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -162,14 +157,14 @@ export default function CheckoutPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || 'অর্ডার সম্পন্ন হতে ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।');
+        setFormError(data.error || (language === 'bn' ? 'অর্ডার সম্পন্ন হতে ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।' : 'Failed to complete order. Please try again.'));
         setIsSubmitting(false);
       } else {
         clearCart();
         router.push(`/order-success/${data.orderNumber}`);
       }
     } catch (err) {
-      setFormError('নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।');
+      setFormError(language === 'bn' ? 'নেটওয়ার্ক সমস্যা। পুনরায় চেষ্টা করুন।' : 'Network error. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -179,15 +174,20 @@ export default function CheckoutPage() {
       <StorefrontLayout>
         <div className="max-w-xl mx-auto px-4 py-20 text-center">
           <ShoppingBag size={54} className="text-zinc-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-serif font-bold text-zinc-900">আপনার কার্ট খালি</h1>
+          <h1 className="text-2xl font-serif font-bold text-zinc-900">
+            {t('আপনার কার্ট খালি', 'Your Cart is Empty')}
+          </h1>
           <p className="text-xs text-zinc-500 mt-2">
-            অর্ডার করার পূর্বে অনুগ্রহ করে আপনার পছন্দের পণ্য কার্টে যোগ করুন।
+            {t(
+              'অর্ডার করার পূর্বে অনুগ্রহ করে আপনার পছন্দের পণ্য কার্টে যোগ করুন।',
+              'Please add items to your cart before proceeding to checkout.'
+            )}
           </p>
           <Link
             href="/shop"
             className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#D4AF37] text-black font-bold text-xs rounded-xl shadow hover:bg-[#b89528]"
           >
-            <span>পণ্য দেখুন ও শপিং শুরু করুন</span>
+            <span>{t('পণ্য দেখুন ও শপিং শুরু করুন', 'Browse Products & Start Shopping')}</span>
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -199,10 +199,13 @@ export default function CheckoutPage() {
     <StorefrontLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <h1 className="text-xl sm:text-3xl font-serif font-bold text-zinc-900 mb-2">
-          চেকআউট ও দ্রুত অর্ডার (Fast Checkout)
+          {t('চেকআউট ও সহজ অর্ডার', 'Fast & Easy Checkout')}
         </h1>
         <p className="text-xs text-zinc-500 mb-8">
-          অর্ডার সম্পন্ন করতে নিচের তথ্যগুলো পূরণ করুন। কোনো একাউন্ট খোলার প্রয়োজন নেই (Guest Checkout)।
+          {t(
+            'অর্ডার সম্পন্ন করতে নিচের তথ্যগুলো পূরণ করুন। কোনো একাউন্ট খোলার প্রয়োজন নেই।',
+            'Fill out the form below to place your order. No account registration needed (Guest Checkout).'
+          )}
         </p>
 
         {formError && (
@@ -221,20 +224,20 @@ export default function CheckoutPage() {
             <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-200/90 shadow-sm space-y-4">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2 border-b pb-3">
                 <span className="w-6 h-6 rounded-full bg-[#111] text-[#D4AF37] flex items-center justify-center text-xs font-bold">1</span>
-                <span>ডেলিভারির তথ্য (Customer Details)</span>
+                <span>{t('ডেলিভারির তথ্য', 'Delivery Information')}</span>
               </h2>
 
               {/* Field 1: Full Name */}
               <div>
                 <label className="block text-xs font-bold text-zinc-800 mb-1.5">
-                  ১. আপনার সম্পূর্ণ নাম (Full Name) <span className="text-rose-600">*</span>
+                  {t('১. আপনার সম্পূর্ণ নাম', '1. Full Name')} <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="যেমন: নুসরাত জাহান"
+                  placeholder={t('যেমন: নুসরাত জাহান', 'e.g. Nusrat Jahan')}
                   className="w-full bg-zinc-50 border border-zinc-300 focus:border-[#D4AF37] focus:bg-white rounded-xl p-3 text-xs sm:text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400"
                 />
               </div>
@@ -242,7 +245,7 @@ export default function CheckoutPage() {
               {/* Field 2: Mobile Number */}
               <div>
                 <label className="block text-xs font-bold text-zinc-800 mb-1.5">
-                  ২. মোবাইল নম্বর (Mobile Number) <span className="text-rose-600">*</span>
+                  {t('২. মোবাইল নম্বর', '2. Mobile Phone Number')} <span className="text-rose-600">*</span>
                 </label>
                 <input
                   type="tel"
@@ -253,14 +256,17 @@ export default function CheckoutPage() {
                   className="w-full bg-zinc-50 border border-zinc-300 focus:border-[#D4AF37] focus:bg-white rounded-xl p-3 text-xs sm:text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 font-mono"
                 />
                 <p className="text-[11px] text-zinc-500 mt-1">
-                  * ডেলিভারি ম্যানের সাথে যোগাযোগের জন্য সক্রিয় মোবাইল নম্বর দিন।
+                  {t(
+                    '* ডেলিভারি ম্যানের সাথে যোগাযোগের জন্য সক্রিয় মোবাইল নম্বর দিন।',
+                    '* Please provide an active mobile number for delivery confirmation.'
+                  )}
                 </p>
               </div>
 
-              {/* District Dropdown (Inside Address step without cluttering) */}
+              {/* District Dropdown */}
               <div>
                 <label className="block text-xs font-bold text-zinc-800 mb-1.5">
-                  জেলা নির্বাচন করুন (District) <span className="text-rose-600">*</span>
+                  {t('জেলা নির্বাচন করুন', 'Select District')} <span className="text-rose-600">*</span>
                 </label>
                 <select
                   value={district}
@@ -269,7 +275,7 @@ export default function CheckoutPage() {
                 >
                   {BANGLADESH_DISTRICTS.map((d) => (
                     <option key={d.name} value={d.name}>
-                      {d.bn} ({d.name})
+                      {language === 'bn' ? d.bn : d.name}
                     </option>
                   ))}
                 </select>
@@ -278,14 +284,14 @@ export default function CheckoutPage() {
               {/* Field 3: Full Address */}
               <div>
                 <label className="block text-xs font-bold text-zinc-800 mb-1.5">
-                  ৩. সম্পূর্ণ ঠিকানা (Full Address) <span className="text-rose-600">*</span>
+                  {t('৩. সম্পূর্ণ ঠিকানা', '3. Delivery Address')} <span className="text-rose-600">*</span>
                 </label>
                 <textarea
                   required
                   rows={2}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="বাসা নং, রোড নং, এলাকা / থানা..."
+                  placeholder={t('বাসা নং, রোড নং, এলাকা / থানা...', 'House no, Road no, Area, Thana...')}
                   className="w-full bg-zinc-50 border border-zinc-300 focus:border-[#D4AF37] focus:bg-white rounded-xl p-3 text-xs sm:text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400"
                 />
               </div>
@@ -293,13 +299,13 @@ export default function CheckoutPage() {
               {/* Optional Order Note */}
               <div>
                 <label className="block text-xs font-medium text-zinc-600 mb-1">
-                  অর্ডার সংক্রান্ত বিশেষ কোনো নোট (অপশনাল)
+                  {t('অর্ডার সংক্রান্ত বিশেষ নোট (ঐচ্ছিক)', 'Order Notes (Optional)')}
                 </label>
                 <input
                   type="text"
                   value={orderNote}
                   onChange={(e) => setOrderNote(e.target.value)}
-                  placeholder="যেমন: বিকেলে ডেলিভারি দিলে ভালো হয়..."
+                  placeholder={t('যেমন: বিকেলে ডেলিভারি দিলে ভালো হয়...', 'e.g. Please deliver after 3 PM...')}
                   className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2.5 text-xs text-zinc-800 outline-none focus:border-zinc-400"
                 />
               </div>
@@ -309,11 +315,11 @@ export default function CheckoutPage() {
             <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-200/90 shadow-sm space-y-4">
               <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2 border-b pb-3">
                 <span className="w-6 h-6 rounded-full bg-[#111] text-[#D4AF37] flex items-center justify-center text-xs font-bold">2</span>
-                <span>পেমেন্ট পদ্ধতি নির্বাচন করুন (Payment Method)</span>
+                <span>{t('পেমেন্ট পদ্ধতি নির্বাচন করুন', 'Payment Method')}</span>
               </h2>
 
               <div className="space-y-3">
-                {/* Cash On Delivery (Pre-selected by default) */}
+                {/* Cash On Delivery */}
                 <label
                   className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     paymentMethod === 'COD'
@@ -332,14 +338,17 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs sm:text-sm font-bold text-zinc-900">
-                        ক্যাশ অন ডেলিভারি (Cash on Delivery)
+                        {t('ক্যাশ অন ডেলিভারি', 'Cash on Delivery')}
                       </span>
                       <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                        জনপ্রিয়
+                        {t('জনপ্রিয়', 'Popular')}
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      পণ্য হাতে পেয়ে দেখে ডেলিভারি ম্যানের কাছে মূল্য পরিশোধ করুন।
+                      {t(
+                        'পণ্য হাতে পেয়ে দেখে ডেলিভারি ম্যানের কাছে মূল্য পরিশোধ করুন।',
+                        'Pay with cash when your parcel is delivered to your doorstep.'
+                      )}
                     </p>
                   </div>
                 </label>
@@ -363,10 +372,10 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <span className="text-xs sm:text-sm font-bold text-zinc-900 flex items-center gap-2">
                       <span className="bg-[#E2136E] text-white px-2 py-0.5 rounded text-[10px] font-extrabold">bKash</span>
-                      <span>বিকাশ সেন্ড মানি (ম্যানুয়াল ভেরিফিকেশন)</span>
+                      <span>{t('বিকাশ সেন্ড মানি', 'bKash Send Money')}</span>
                     </span>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      বিকাশ নম্বর: <span className="font-mono font-bold text-black">{settings?.bkashNumber || '01712-345678'}</span> (Personal)
+                      {t('বিকাশ নম্বর: ', 'bKash Number: ')}<span className="font-mono font-bold text-black">{settings?.bkashNumber || '01712-345678'}</span> (Personal)
                     </p>
                   </div>
                 </label>
@@ -390,10 +399,10 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <span className="text-xs sm:text-sm font-bold text-zinc-900 flex items-center gap-2">
                       <span className="bg-[#F7941D] text-white px-2 py-0.5 rounded text-[10px] font-extrabold">Nagad</span>
-                      <span>নগদ সেন্ড মানি (ম্যানুয়াল ভেরিফিকেশন)</span>
+                      <span>{t('নগদ সেন্ড মানি', 'Nagad Send Money')}</span>
                     </span>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      নগদ নম্বর: <span className="font-mono font-bold text-black">{settings?.nagadNumber || '01712-345678'}</span> (Personal)
+                      {t('নগদ নম্বর: ', 'Nagad Number: ')}<span className="font-mono font-bold text-black">{settings?.nagadNumber || '01712-345678'}</span> (Personal)
                     </p>
                   </div>
                 </label>
@@ -404,13 +413,13 @@ export default function CheckoutPage() {
                 <div className="p-4 bg-zinc-50 rounded-xl border border-zinc-200 space-y-3 mt-3 animate-in fade-in duration-200">
                   <p className="text-xs text-zinc-700 font-medium">
                     {paymentMethod === 'BKASH_MANUAL'
-                      ? settings?.bkashInstructions || 'বিকাশ নম্বরে টাকা পাঠিয়ে নিচে প্রেরক নম্বর ও TrxID প্রদান করুন।'
-                      : settings?.nagadInstructions || 'নগদ নম্বরে টাকা পাঠিয়ে নিচে প্রেরক নম্বর ও TrxID প্রদান করুন।'}
+                      ? (settings?.bkashInstructions || t('বিকাশ নম্বরে টাকা পাঠিয়ে নিচে প্রেরক নম্বর ও TrxID প্রদান করুন।', 'Send money to the bKash number and enter sender phone & TrxID below.'))
+                      : (settings?.nagadInstructions || t('নগদ নম্বরে টাকা পাঠিয়ে নিচে প্রেরক নম্বর ও TrxID প্রদান করুন।', 'Send money to the Nagad number and enter sender phone & TrxID below.'))}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-bold text-zinc-700 mb-1">
-                        যে নম্বর থেকে পাঠিয়েছেন (Sender Mobile)
+                        {t('প্রেরক মোবাইল নম্বর', 'Sender Mobile Number')}
                       </label>
                       <input
                         type="tel"
@@ -423,7 +432,7 @@ export default function CheckoutPage() {
                     </div>
                     <div>
                       <label className="block text-[11px] font-bold text-zinc-700 mb-1">
-                        Transaction ID (TrxID)
+                        {t('ট্রানজ্যাকশন আইডি (TrxID)', 'Transaction ID (TrxID)')}
                       </label>
                       <input
                         type="text"
@@ -441,17 +450,14 @@ export default function CheckoutPage() {
 
           </div>
 
-          {/* Right Side: Order Summary & Live Total Everywhere (5 Cols) */}
-          {/* Page 5 Rules:
-              - The delivery-area choice (Inside Dhaka / Near Dhaka / Outside Dhaka) sits inside Order Summary
-              - Grand total updates immediately
-              - Confirm order button itself shows the grand total!
-          */}
+          {/* Right Side: Order Summary */}
           <div className="lg:col-span-5 space-y-5">
             <div className="bg-zinc-50 p-5 sm:p-6 rounded-2xl border border-zinc-200/90 shadow-sm sticky top-24 space-y-5">
               <h2 className="text-base font-bold text-zinc-900 border-b pb-3 flex items-center justify-between">
-                <span>অর্ডার সামারি (Order Summary)</span>
-                <span className="text-xs text-zinc-500 font-normal">{cart.length} টি আইটেম</span>
+                <span>{t('অর্ডারের সারসংক্ষেপ', 'Order Summary')}</span>
+                <span className="text-xs text-zinc-500 font-normal">
+                  {cart.length} {t('টি আইটেম', 'items')}
+                </span>
               </h2>
 
               {/* Items in Summary */}
@@ -478,10 +484,10 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {/* Delivery Zone Selector inside Order Summary (Per Page 5 Specification) */}
+              {/* Delivery Zone Selector inside Order Summary */}
               <div className="pt-3 border-t border-zinc-200">
                 <label className="block text-xs font-bold text-zinc-900 mb-2">
-                  ডেলিভারি এরিয়া (Delivery Area):
+                  {t('ডেলিভারি এলাকা:', 'Delivery Area:')}
                 </label>
                 <div className="space-y-1.5 text-xs">
                   <label
@@ -499,9 +505,9 @@ export default function CheckoutPage() {
                         onChange={() => setDeliveryZone('inside_dhaka')}
                         className="text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
-                      <span>ঢাকা সিটি (Inside Dhaka)</span>
+                      <span>{t('ঢাকা সিটি', 'Inside Dhaka City')}</span>
                     </div>
-                    <span>{isFreeDelivery ? 'ফ্রি' : formatPrice(chargeInside)}</span>
+                    <span>{isFreeDelivery ? t('ফ্রি', 'Free') : formatPrice(chargeInside)}</span>
                   </label>
 
                   <label
@@ -519,9 +525,9 @@ export default function CheckoutPage() {
                         onChange={() => setDeliveryZone('near_dhaka')}
                         className="text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
-                      <span>ঢাকা সাব-এরিয়া / পার্শ্ববর্তী (Near Dhaka)</span>
+                      <span>{t('ঢাকা সাব-এরিয়া / পার্শ্ববর্তী', 'Near Dhaka Sub-area')}</span>
                     </div>
-                    <span>{isFreeDelivery ? 'ফ্রি' : formatPrice(chargeNear)}</span>
+                    <span>{isFreeDelivery ? t('ফ্রি', 'Free') : formatPrice(chargeNear)}</span>
                   </label>
 
                   <label
@@ -539,9 +545,9 @@ export default function CheckoutPage() {
                         onChange={() => setDeliveryZone('outside_dhaka')}
                         className="text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
-                      <span>ঢাকার বাইরে সারা বাংলাদেশ (Outside Dhaka)</span>
+                      <span>{t('ঢাকার বাইরে সারা বাংলাদেশ', 'Outside Dhaka (Nationwide)')}</span>
                     </div>
-                    <span>{isFreeDelivery ? 'ফ্রি' : formatPrice(chargeOutside)}</span>
+                    <span>{isFreeDelivery ? t('ফ্রি', 'Free') : formatPrice(chargeOutside)}</span>
                   </label>
                 </div>
               </div>
@@ -550,7 +556,7 @@ export default function CheckoutPage() {
               <div className="pt-3 border-t border-zinc-200">
                 <label className="block text-xs font-bold text-zinc-900 mb-1.5 flex items-center gap-1.5">
                   <Tag size={13} className="text-[#b89528]" />
-                  <span>কুপন কোড (Discount Coupon)</span>
+                  <span>{t('কুপন কোড', 'Discount Coupon')}</span>
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -567,7 +573,7 @@ export default function CheckoutPage() {
                       onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
                       className="px-3 py-2 bg-rose-50 text-rose-600 text-xs font-bold rounded-lg border border-rose-200"
                     >
-                      রিমুভ
+                      {t('রিমুভ', 'Remove')}
                     </button>
                   ) : (
                     <button
@@ -576,13 +582,13 @@ export default function CheckoutPage() {
                       disabled={isApplyingCoupon || !couponCode.trim()}
                       className="px-4 py-2 bg-black text-[#D4AF37] text-xs font-bold rounded-lg hover:bg-zinc-800 disabled:opacity-50"
                     >
-                      {isApplyingCoupon ? 'যাচাই হচ্ছে...' : 'প্রয়োগ করুন'}
+                      {isApplyingCoupon ? t('যাচাই হচ্ছে...', 'Checking...') : t('প্রয়োগ করুন', 'Apply')}
                     </button>
                   )}
                 </div>
                 {appliedCoupon && (
                   <p className="text-xs text-emerald-700 font-semibold mt-1 flex items-center gap-1">
-                    <CheckCircle2 size={13} /> কুপন &ldquo;{appliedCoupon.code}&rdquo; সফলভাবে যুক্ত হয়েছে!
+                    <CheckCircle2 size={13} /> {t(`কুপন "${appliedCoupon.code}" সফলভাবে যুক্ত হয়েছে!`, `Coupon "${appliedCoupon.code}" applied successfully!`)}
                   </p>
                 )}
                 {couponError && (
@@ -595,15 +601,15 @@ export default function CheckoutPage() {
               {/* Financial Calculation Breakdown */}
               <div className="pt-4 border-t border-zinc-200 space-y-2 text-xs">
                 <div className="flex justify-between text-zinc-600">
-                  <span>সাবটোটাল</span>
+                  <span>{t('মোট পণ্যমূল্য', 'Subtotal')}</span>
                   <span className="font-semibold text-zinc-900">{formatPrice(cartSubtotal)}</span>
                 </div>
 
                 <div className="flex justify-between text-zinc-600">
-                  <span>ডেলিভারি চার্জ</span>
+                  <span>{t('ডেলিভারি চার্জ', 'Delivery Charge')}</span>
                   <span className="font-semibold text-zinc-900">
                     {isFreeDelivery ? (
-                      <span className="text-emerald-700 font-bold">ফ্রি (৳০)</span>
+                      <span className="text-emerald-700 font-bold">{t('ফ্রি (৳০)', 'Free (৳0)')}</span>
                     ) : (
                       formatPrice(finalDeliveryCharge)
                     )}
@@ -612,32 +618,35 @@ export default function CheckoutPage() {
 
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-700 font-semibold">
-                    <span>কুপন ডিসকাউন্ট</span>
+                    <span>{t('কুপন ডিসকাউন্ট', 'Coupon Discount')}</span>
                     <span>- {formatPrice(discountAmount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-sm sm:text-base font-extrabold text-zinc-900 pt-2 border-t border-zinc-300">
-                  <span>সর্বমোট প্রদেয় বিল</span>
+                  <span>{t('সর্বমোট প্রদেয় বিল', 'Total Payable')}</span>
                   <span className="text-[#b89528] text-lg">{formatPrice(grandTotal)}</span>
                 </div>
               </div>
 
               {/* Confirm Order Button with Total on the button! */}
-              {/* Page 5 Rule: the button itself shows the total amount */}
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="w-full bg-[#D4AF37] hover:bg-[#b89528] text-black font-extrabold py-4 px-6 rounded-xl shadow-xl text-sm sm:text-base flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50"
               >
-                <span>{isSubmitting ? 'অর্ডার প্রসেস হচ্ছে...' : `অর্ডার নিশ্চিত করুন (${formatPrice(grandTotal)})`}</span>
+                <span>
+                  {isSubmitting
+                    ? t('অর্ডার প্রসেস হচ্ছে...', 'Processing Order...')
+                    : (language === 'bn' ? `অর্ডার নিশ্চিত করুন (${formatPrice(grandTotal)})` : `Confirm Order (${formatPrice(grandTotal)})`)}
+                </span>
                 <ArrowRight size={18} />
               </button>
 
               <div className="text-center">
                 <p className="text-[11px] text-zinc-500 flex items-center justify-center gap-1">
                   <ShieldCheck size={14} className="text-[#b89528]" />
-                  <span>শতভাগ নিরাপদ ও ঝামেলামুক্ত শপিং নিশ্চয়তা</span>
+                  <span>{t('শতভাগ নিরাপদ ও ঝামেলামুক্ত শপিং নিশ্চয়তা', '100% Safe & Hassle-free Shopping Guarantee')}</span>
                 </p>
               </div>
 

@@ -108,7 +108,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/65 backdrop-blur-[2px] flex items-center justify-center p-2">
             <span className="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow">
-              {t('স্টক শেষ (Sold Out)', 'Sold Out')}
+              {t('স্টক শেষ', 'Sold Out')}
             </span>
           </div>
         )}

@@ -6,8 +6,6 @@ import {
   ShoppingBag,
   Zap,
   Heart,
-  Share2,
-  Check,
   Truck,
   ShieldCheck,
   RefreshCw,
@@ -17,17 +15,19 @@ import {
   Minus,
   MessageCircle,
   Copy,
-  ChevronRight
+  ChevronRight,
+  Check
 } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { formatPrice } from '@/lib/utils';
+import { ProductCard } from '@/components/ProductCard';
 
 const FacebookIcon = ({ size = 15 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
   </svg>
 );
-import { useCart } from '@/context/CartContext';
-import { formatPrice } from '@/lib/utils';
-import { ProductCard } from '@/components/ProductCard';
 
 interface ProductDetailClientProps {
   product: any;
@@ -41,6 +41,7 @@ export default function ProductDetailClient({
   settings
 }: ProductDetailClientProps) {
   const { addToCart, buyNow, toggleWishlist, isInWishlist } = useCart();
+  const { language, t } = useLanguage();
 
   // Parse images
   const images: string[] = useMemo(() => {
@@ -121,29 +122,29 @@ export default function ProductDetailClient({
   const regularPrice = (product.regularPrice || 0) + (activeVariant?.priceDiff || 0);
   const savings = Math.max(0, regularPrice - currentPrice);
 
-  // Size chart data parsing
+  // Size chart parse
   const sizeChart = useMemo(() => {
-    if (!product.category?.sizeChartData) return null;
     try {
-      return JSON.parse(product.category.sizeChartData);
-    } catch (e) {
-      return null;
-    }
-  }, [product.category]);
+      if (product.category?.sizeChartData) {
+        return JSON.parse(product.category.sizeChartData);
+      }
+    } catch (e) {}
+    return null;
+  }, [product]);
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
     addToCart({
       productId: product.id,
       variantId: activeVariant?.id,
-      name: product.name,
+      name: language === 'bn' && product.nameBn ? product.nameBn : product.name,
       slug: product.slug,
       image: activeImage,
+      price: currentPrice,
+      regularPrice: regularPrice,
+      quantity,
       size: selectedSize || undefined,
       color: selectedColor || undefined,
-      price: currentPrice,
-      regularPrice,
-      quantity,
       maxStock: currentStock
     });
   };
@@ -153,14 +154,14 @@ export default function ProductDetailClient({
     buyNow({
       productId: product.id,
       variantId: activeVariant?.id,
-      name: product.name,
+      name: language === 'bn' && product.nameBn ? product.nameBn : product.name,
       slug: product.slug,
       image: activeImage,
+      price: currentPrice,
+      regularPrice: regularPrice,
+      quantity,
       size: selectedSize || undefined,
       color: selectedColor || undefined,
-      price: currentPrice,
-      regularPrice,
-      quantity,
       maxStock: currentStock
     });
   };
@@ -175,8 +176,7 @@ export default function ProductDetailClient({
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewName || !reviewComment) return;
-
+    if (!reviewName.trim() || !reviewComment.trim()) return;
     setIsSubmittingReview(true);
     try {
       const res = await fetch('/api/reviews', {
@@ -192,6 +192,9 @@ export default function ProductDetailClient({
       });
       if (res.ok) {
         setReviewSubmitted(true);
+        setReviewName('');
+        setReviewPhone('');
+        setReviewComment('');
       }
     } catch (err) {
       console.error(err);
@@ -201,23 +204,25 @@ export default function ProductDetailClient({
   };
 
   const inWishlist = isInWishlist(product.id);
+  const displayName = language === 'bn' && product.nameBn ? product.nameBn : product.name;
+  const categoryTitle = language === 'bn' ? (product.category?.nameBn || product.category?.name) : product.category?.name;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center gap-1.5 text-xs text-zinc-500 mb-6 overflow-x-auto whitespace-nowrap pb-1">
-        <Link href="/" className="hover:text-zinc-900">হোম</Link>
+        <Link href="/" className="hover:text-zinc-900">{t('হোম', 'Home')}</Link>
         <ChevronRight size={12} />
         {product.category && (
           <>
             <Link href={`/category/${product.category.slug}`} className="hover:text-zinc-900">
-              {product.category.nameBn || product.category.name}
+              {categoryTitle}
             </Link>
             <ChevronRight size={12} />
           </>
         )}
-        <span className="text-zinc-900 font-medium truncate max-w-[200px]">{product.name}</span>
+        <span className="text-zinc-900 font-medium truncate max-w-[200px]">{displayName}</span>
       </nav>
 
       {/* Main Grid: Gallery & Details */}
@@ -229,12 +234,12 @@ export default function ProductDetailClient({
           <div className="relative aspect-[3/4] w-full bg-zinc-100 rounded-2xl overflow-hidden border border-zinc-200 shadow-sm group">
             <img
               src={activeImage}
-              alt={product.name}
+              alt={displayName}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             {product.discountPercent > 0 && (
-              <span className="absolute top-4 left-4 bg-[#D4AF37] text-black text-xs font-black px-2.5 py-1 rounded shadow">
-                {product.discountPercent}% ছাড়
+              <span className="absolute top-4 left-4 bg-gradient-to-r from-[#D4AF37] to-[#B89528] text-black text-xs font-black px-2.5 py-1 rounded shadow">
+                {product.discountPercent}% {t('ছাড়', 'OFF')}
               </span>
             )}
             <button
@@ -274,16 +279,13 @@ export default function ProductDetailClient({
             <div>
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-[#b89528] uppercase tracking-wider">
-                  {product.category?.nameBn || product.category?.name}
+                  {categoryTitle}
                 </span>
                 <span className="text-xs text-zinc-400">SKU: {product.sku}</span>
               </div>
               <h1 className="text-xl sm:text-3xl font-serif font-bold text-zinc-900 mt-1">
-                {product.name}
+                {displayName}
               </h1>
-              {product.nameBn && (
-                <p className="text-sm font-medium text-zinc-600 mt-0.5">{product.nameBn}</p>
-              )}
             </div>
 
             {/* Rating Stars & View count */}
@@ -297,15 +299,17 @@ export default function ProductDetailClient({
                   />
                 ))}
                 <span className="font-bold text-zinc-800 ml-1">
-                  {product.reviews?.length ? '5.0' : 'New'}
+                  {product.reviews?.length ? '5.0' : (language === 'bn' ? 'নতুন' : 'New')}
                 </span>
-                <span className="text-zinc-400">({product.reviews?.length || 0} রিভিউ)</span>
+                <span className="text-zinc-400">({product.reviews?.length || 0} {t('রিভিউ', 'reviews')})</span>
               </div>
               <span>•</span>
-              <span className="text-zinc-600">👀 {product.viewCount + 14} বার দেখা হয়েছে</span>
+              <span className="text-zinc-600">
+                👀 {product.viewCount + 14} {t('বার দেখা হয়েছে', 'views')}
+              </span>
             </div>
 
-            {/* Price Block (Offer Price, Regular Strike-through, Savings) */}
+            {/* Price Block */}
             <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-200/80">
               <div className="flex items-baseline gap-3">
                 <span className="text-2xl sm:text-3xl font-black text-[#b89528]">
@@ -318,14 +322,17 @@ export default function ProductDetailClient({
                 )}
                 {savings > 0 && (
                   <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">
-                    আপনার সাশ্রয় {formatPrice(savings)}
+                    {t(`আপনার সাশ্রয় ${formatPrice(savings)}`, `You save ${formatPrice(savings)}`)}
                   </span>
                 )}
               </div>
               <p className="text-xs text-zinc-500 mt-1.5 flex items-center gap-1.5">
                 <Truck size={14} className="text-[#b89528]" />
                 <span>
-                  ডেলিভারি চার্জ: ঢাকা ৳৭০ | ঢাকার বাইরে ৳১৩০ | ২,০০০ টাকার অর্ডারে <strong>ফ্রি ডেলিভারি</strong>
+                  {t(
+                    'ডেলিভারি চার্জ: ঢাকা ৳৭০ | ঢাকার বাইরে ৳১৩০ | ২,০০০ টাকার অর্ডারে ফ্রি ডেলিভারি',
+                    'Delivery Charge: Inside Dhaka ৳70 | Outside Dhaka ৳130 | Free Delivery on orders over ৳2,000'
+                  )}
                 </span>
               </p>
             </div>
@@ -334,7 +341,7 @@ export default function ProductDetailClient({
             {uniqueColors.length > 0 && (
               <div>
                 <label className="text-xs font-bold text-zinc-900 block mb-2">
-                  কালার (Select Colour): <span className="text-[#b89528]">{selectedColor}</span>
+                  {t('কালার:', 'Colour:')} <span className="text-[#b89528]">{selectedColor}</span>
                 </label>
                 <div className="flex flex-wrap gap-2.5">
                   {uniqueColors.map((c) => (
@@ -364,7 +371,7 @@ export default function ProductDetailClient({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-zinc-900">
-                    সাইজ (Select Size): <span className="text-[#b89528]">{selectedSize}</span>
+                    {t('সাইজ:', 'Size:')} <span className="text-[#b89528]">{selectedSize}</span>
                   </label>
                   {sizeChart && (
                     <button
@@ -373,14 +380,13 @@ export default function ProductDetailClient({
                       className="text-xs font-semibold text-[#b89528] hover:underline flex items-center gap-1"
                     >
                       <Ruler size={13} />
-                      <span>সাইজ চার্ট (Size Chart)</span>
+                      <span>{t('সাইজ গাইড', 'Size Guide')}</span>
                     </button>
                   )}
                 </div>
 
                 <div className="flex flex-wrap gap-2">
                   {uniqueSizes.map((sz) => {
-                    // Check stock for this size in selectedColor
                     const variantForSize = variants.find(
                       (v: any) => v.size === sz && (!selectedColor || v.colorName === selectedColor)
                     );
@@ -404,7 +410,7 @@ export default function ProductDetailClient({
                         {sz}
                         {isSizeDisabled && (
                           <span className="block text-[9px] font-normal text-rose-500 -mt-0.5">
-                            স্টক শেষ
+                            {t('স্টক শেষ', 'Sold Out')}
                           </span>
                         )}
                       </button>
@@ -417,19 +423,23 @@ export default function ProductDetailClient({
             {/* Stock per variant warning */}
             <div className="text-xs font-medium">
               {isOutOfStock ? (
-                <span className="text-rose-600 font-bold">⚠️ এই সাইজ/কালারটি বর্তমানে স্টকে নেই</span>
+                <span className="text-rose-600 font-bold">
+                  ⚠️ {t('এই সাইজ/কালারটি বর্তমানে স্টকে নেই', 'This variant is currently out of stock')}
+                </span>
               ) : currentStock <= 5 ? (
-                <span className="text-amber-600 font-bold">⚡ আর মাত্র {currentStock} টি স্টকে রয়েছে! দ্রুত অর্ডার করুন।</span>
+                <span className="text-amber-600 font-bold">
+                  ⚡ {t(`আর মাত্র ${currentStock} টি স্টকে রয়েছে! দ্রুত অর্ডার করুন।`, `Only ${currentStock} left in stock! Order soon.`)}
+                </span>
               ) : (
                 <span className="text-emerald-700 flex items-center gap-1 font-semibold">
-                  <Check size={14} /> স্টকে এভেইলেবল রয়েছে (In Stock)
+                  <Check size={14} /> {t('স্টকে অ্যাভেইলেবল রয়েছে', 'In Stock & Ready to Ship')}
                 </span>
               )}
             </div>
 
             {/* Quantity Selector */}
             <div className="flex items-center gap-4 pt-1">
-              <span className="text-xs font-bold text-zinc-900">পরিমাণ:</span>
+              <span className="text-xs font-bold text-zinc-900">{t('পরিমাণ:', 'Quantity:')}</span>
               <div className="flex items-center border border-zinc-300 rounded-lg overflow-hidden bg-white">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -457,16 +467,16 @@ export default function ProductDetailClient({
                 className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl border-2 border-black text-black font-bold text-sm hover:bg-zinc-100 active:scale-98 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ShoppingBag size={18} />
-                <span>ব্যাগে রাখুন (Add To Cart)</span>
+                <span>{t('ব্যাগে রাখুন', 'Add to Bag')}</span>
               </button>
 
               <button
                 onClick={handleBuyNow}
                 disabled={isOutOfStock}
-                className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#D4AF37] hover:bg-[#b89528] text-black font-extrabold text-sm shadow-lg active:scale-98 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#B89528] hover:brightness-110 text-black font-extrabold text-sm shadow-lg active:scale-98 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Zap size={18} className="fill-black" />
-                <span>অর্ডার করুন (Order Now)</span>
+                <span>{t('অর্ডার করুন এখনই', 'Order Now')}</span>
               </button>
             </div>
 
@@ -474,21 +484,21 @@ export default function ProductDetailClient({
             <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-2 text-xs text-zinc-700">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={16} className="text-[#b89528] flex-shrink-0" />
-                <span>১০০% আসল ও প্রিমিয়াম কোয়ালিটি পণ্য</span>
+                <span>{t('১০০% আসল ও প্রিমিয়াম কোয়ালিটি পণ্য', '100% Authentic Premium Quality Guaranteed')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Truck size={16} className="text-[#b89528] flex-shrink-0" />
-                <span>ক্যাশ অন ডেলিভারি (পণ্য চেক করে টাকা দেওয়ার সুবিধা)</span>
+                <span>{t('ক্যাশ অন ডেলিভারি (পণ্য চেক করে টাকা দেওয়ার সুবিধা)', 'Cash on Delivery Nationwide (Inspect before payment)')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <RefreshCw size={16} className="text-[#b89528] flex-shrink-0" />
-                <span>সহজ ৩ দিনের এক্সচেঞ্জ গ্যারান্টি</span>
+                <span>{t('সহজ ৩ দিনের এক্সচেঞ্জ সুবিধা', 'Hassle-Free 3-Day Exchange Guarantee')}</span>
               </div>
             </div>
 
             {/* Share buttons */}
             <div className="flex items-center gap-3 pt-2 text-xs text-zinc-500">
-              <span className="font-semibold text-zinc-700">শেয়ার করুন:</span>
+              <span className="font-semibold text-zinc-700">{t('শেয়ার করুন:', 'Share:')}</span>
               <a
                 href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
                 target="_blank"
@@ -513,7 +523,7 @@ export default function ProductDetailClient({
                 aria-label="Copy Link"
               >
                 {copiedLink ? <Check size={15} className="text-emerald-600" /> : <Copy size={15} />}
-                {copiedLink && <span className="text-[10px] text-emerald-600 font-bold">কপি হয়েছে</span>}
+                {copiedLink && <span className="text-[10px] text-emerald-600 font-bold">{t('কপি হয়েছে', 'Copied')}</span>}
               </button>
             </div>
 
@@ -525,11 +535,10 @@ export default function ProductDetailClient({
       {/* Product Information, Fabric & Description */}
       <div className="mt-12 pt-8 border-t border-zinc-200">
         <h2 className="text-xl font-serif font-bold text-zinc-900 mb-4">
-          পণ্যের বিস্তারিত বিবরণ (Product Description)
+          {t('পণ্যের বিস্তারিত বিবরণ', 'Product Description')}
         </h2>
         <div className="prose max-w-none text-sm text-zinc-700 space-y-3 leading-relaxed">
-          <p>{product.description}</p>
-          {product.descriptionBn && <p className="font-medium text-zinc-800">{product.descriptionBn}</p>}
+          <p>{language === 'bn' && product.descriptionBn ? product.descriptionBn : product.description}</p>
         </div>
 
         {/* Specification Table */}
@@ -538,19 +547,19 @@ export default function ProductDetailClient({
             <tbody className="divide-y divide-zinc-200">
               {product.fabric && (
                 <tr className="bg-zinc-50">
-                  <td className="py-2.5 px-4 font-bold text-zinc-800 w-1/3">ফেব্রিক / উপাদান</td>
+                  <td className="py-2.5 px-4 font-bold text-zinc-800 w-1/3">{t('ফেব্রিক / উপাদান', 'Fabric / Material')}</td>
                   <td className="py-2.5 px-4 text-zinc-600">{product.fabric}</td>
                 </tr>
               )}
               {product.careInstructions && (
                 <tr>
-                  <td className="py-2.5 px-4 font-bold text-zinc-800">যত্ন ও ধোয়া (Care)</td>
+                  <td className="py-2.5 px-4 font-bold text-zinc-800">{t('যত্ন ও ধোয়া', 'Care Instructions')}</td>
                   <td className="py-2.5 px-4 text-zinc-600">{product.careInstructions}</td>
                 </tr>
               )}
               <tr className="bg-zinc-50">
-                <td className="py-2.5 px-4 font-bold text-zinc-800">উৎপত্তি</td>
-                <td className="py-2.5 px-4 text-zinc-600">১০০% অথেনটিক কালেকশন</td>
+                <td className="py-2.5 px-4 font-bold text-zinc-800">{t('উৎপত্তি', 'Origin')}</td>
+                <td className="py-2.5 px-4 text-zinc-600">{t('১০০% অথেনটিক কালেকশন', '100% Authentic Collection')}</td>
               </tr>
             </tbody>
           </table>
@@ -560,7 +569,7 @@ export default function ProductDetailClient({
       {/* Customer Reviews & Submit Form */}
       <div className="mt-12 pt-8 border-t border-zinc-200">
         <h2 className="text-xl font-serif font-bold text-zinc-900 mb-6">
-          গ্রাহকদের রিভিউ (Customer Reviews & Ratings)
+          {t('গ্রাহকদের রিভিউ ও রেটিং', 'Customer Reviews & Ratings')}
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -582,22 +591,25 @@ export default function ProductDetailClient({
               ))
             ) : (
               <p className="text-xs text-zinc-500 italic">
-                এখনো কোনো রিভিউ দেওয়া হয়নি। আপনি প্রথম রিভিউ দিন!
+                {t('এখনো কোনো রিভিউ দেওয়া হয়নি। আপনি প্রথম রিভিউ দিন!', 'No reviews yet. Be the first to review this product!')}
               </p>
             )}
           </div>
 
           {/* Submit Review */}
           <div className="lg:col-span-5 bg-zinc-50 p-5 rounded-2xl border border-zinc-200">
-            <h3 className="font-bold text-sm text-zinc-900 mb-3">একটি রিভিউ লিখুন</h3>
+            <h3 className="font-bold text-sm text-zinc-900 mb-3">{t('একটি রিভিউ লিখুন', 'Write a Review')}</h3>
             {reviewSubmitted ? (
               <div className="p-4 bg-emerald-50 text-emerald-800 text-xs rounded-lg font-medium">
-                ✅ ধন্যবাদ! আপনার মূল্যবান রিভিউটি জমা হয়েছে। এডমিন অনুমোদনের পর তা প্রদর্শিত হবে।
+                {t(
+                  '✅ ধন্যবাদ! আপনার মূল্যবান রিভিউটি জমা হয়েছে। এডমিন অনুমোদনের পর তা প্রদর্শিত হবে।',
+                  '✅ Thank you! Your review has been submitted for moderation.'
+                )}
               </div>
             ) : (
               <form onSubmit={handleSubmitReview} className="space-y-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">রেটিং</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">{t('রেটিং', 'Rating')}</label>
                   <div className="flex gap-1 text-amber-500">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -616,19 +628,19 @@ export default function ProductDetailClient({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">আপনার নাম</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">{t('আপনার নাম', 'Your Name')}</label>
                   <input
                     type="text"
                     required
                     value={reviewName}
                     onChange={(e) => setReviewName(e.target.value)}
-                    placeholder="যেমন: নুসরাত জাহান"
+                    placeholder={t('যেমন: নুসরাত জাহান', 'e.g. Nusrat Jahan')}
                     className="w-full bg-white border border-zinc-300 rounded-lg p-2.5 outline-none focus:border-[#D4AF37]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">মোবাইল নম্বর (অপশনাল)</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">{t('মোবাইল নম্বর (ঐচ্ছিক)', 'Mobile Number (Optional)')}</label>
                   <input
                     type="tel"
                     value={reviewPhone}
@@ -639,13 +651,13 @@ export default function ProductDetailClient({
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">মন্তব্য</label>
+                  <label className="block font-semibold text-zinc-700 mb-1">{t('মন্তব্য', 'Review Comments')}</label>
                   <textarea
                     required
                     rows={3}
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
-                    placeholder="পণ্যটির মান ও অভিজ্ঞতা সম্পর্কে লিখুন..."
+                    placeholder={t('পণ্যটির মান ও অভিজ্ঞতা সম্পর্কে লিখুন...', 'Write about the quality and your experience...')}
                     className="w-full bg-white border border-zinc-300 rounded-lg p-2.5 outline-none focus:border-[#D4AF37]"
                   />
                 </div>
@@ -655,7 +667,7 @@ export default function ProductDetailClient({
                   disabled={isSubmittingReview}
                   className="w-full bg-black text-[#D4AF37] font-bold py-2.5 rounded-lg hover:bg-zinc-800 transition-colors"
                 >
-                  {isSubmittingReview ? 'জমা হচ্ছে...' : 'রিভিউ সাবমিট করুন'}
+                  {isSubmittingReview ? t('জমা হচ্ছে...', 'Submitting...') : t('রিভিউ সাবমিট করুন', 'Submit Review')}
                 </button>
               </form>
             )}
@@ -667,7 +679,7 @@ export default function ProductDetailClient({
       {relatedProducts.length > 0 && (
         <div className="mt-16 pt-8 border-t border-zinc-200">
           <h2 className="text-xl font-serif font-bold text-zinc-900 mb-6">
-            সম্পর্কিত পণ্যসমূহ (You May Also Like)
+            {t('সম্পর্কিত পণ্যসমূহ', 'You May Also Like')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
             {relatedProducts.map((rel: any) => (
@@ -682,7 +694,7 @@ export default function ProductDetailClient({
                 offerPrice={rel.offerPrice}
                 discountPercent={rel.discountPercent}
                 totalStock={rel.totalStock}
-                categoryName={rel.category?.nameBn || rel.category?.name}
+                categoryName={language === 'bn' ? (rel.category?.nameBn || rel.category?.name) : rel.category?.name}
               />
             ))}
           </div>
@@ -696,7 +708,7 @@ export default function ProductDetailClient({
             <div className="flex items-center justify-between pb-3 border-b mb-4">
               <h3 className="font-serif font-bold text-base text-zinc-900 flex items-center gap-2">
                 <Ruler size={18} className="text-[#b89528]" />
-                <span>সাইজ চার্ট (Size Chart in Inches)</span>
+                <span>{t('সাইজ চার্ট (ইঞ্চি)', 'Size Chart (Inches)')}</span>
               </h3>
               <button
                 onClick={() => setShowSizeChart(false)}
@@ -732,17 +744,16 @@ export default function ProductDetailClient({
             </div>
 
             <p className="text-[11px] text-zinc-500 mt-4 italic text-center">
-              * সকল মাপ ইঞ্চি (Inches) হিসেবে প্রদত্ত। শরীরের সাথে সঠিক মাপ মিলিয়ে নিন।
+              {t('* সকল মাপ ইঞ্চি হিসেবে প্রদত্ত। শরীরের সাথে সঠিক মাপ মিলিয়ে নিন।', '* All measurements are in inches. Please measure before ordering.')}
             </p>
           </div>
         </div>
       )}
 
       {/* Sticky Buy Bar on Mobile */}
-      {/* Page 2 & 4 Requirement: Sticky Buy Bar on mobile without covering prices or form */}
       <div className="lg:hidden fixed bottom-14 left-0 right-0 z-30 bg-white border-t border-zinc-200 p-2.5 shadow-2xl flex items-center justify-between gap-3">
         <div>
-          <div className="text-xs text-zinc-500 font-medium leading-none">মোট মূল্য:</div>
+          <div className="text-xs text-zinc-500 font-medium leading-none">{t('মোট মূল্য:', 'Total Price:')}</div>
           <div className="text-base font-extrabold text-[#b89528] leading-tight">
             {formatPrice(currentPrice)}
           </div>
@@ -754,14 +765,14 @@ export default function ProductDetailClient({
             disabled={isOutOfStock}
             className="flex-1 py-2.5 px-2 bg-zinc-900 text-white font-bold text-xs rounded-lg active:scale-95 disabled:opacity-40"
           >
-            ব্যাগে রাখুন
+            {t('ব্যাগে রাখুন', 'Add to Bag')}
           </button>
           <button
             onClick={handleBuyNow}
             disabled={isOutOfStock}
             className="flex-1 py-2.5 px-2 bg-[#D4AF37] text-black font-extrabold text-xs rounded-lg shadow active:scale-95 disabled:opacity-40"
           >
-            অর্ডার করুন
+            {t('অর্ডার করুন', 'Order Now')}
           </button>
         </div>
       </div>

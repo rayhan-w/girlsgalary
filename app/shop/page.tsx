@@ -14,8 +14,8 @@ export default async function ShopPage({
       <CatalogClient
         initialSearch={search}
         initialCategorySlug={category}
-        categoryName="সকল পণ্য সম্ভার"
-        categoryNameBn="সকল কালেকশন (All Collection)"
+        categoryName="All Collections"
+        categoryNameBn="সকল কালেকশন"
       />
     </StorefrontLayout>
   );

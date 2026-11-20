@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Search, Package, Clock, Truck, CheckCircle2, XCircle, AlertCircle, Phone } from 'lucide-react';
 import { StorefrontLayout } from '@/components/StorefrontLayout';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice, formatDate } from '@/lib/utils';
 
 function TrackOrderContent() {
@@ -11,6 +12,7 @@ function TrackOrderContent() {
   const initialOrderNumber = searchParams.get('orderNumber') || '';
   const initialPhone = searchParams.get('phone') || '';
 
+  const { language, t } = useLanguage();
   const [orderNumber, setOrderNumber] = useState(initialOrderNumber);
   const [phone, setPhone] = useState(initialPhone);
   const [order, setOrder] = useState<any>(null);
@@ -25,14 +27,14 @@ function TrackOrderContent() {
       const url = `/api/orders/${orderNum.trim()}${phoneNum.trim() ? `?phone=${encodeURIComponent(phoneNum.trim())}` : ''}`;
       const res = await fetch(url);
       if (!res.ok) {
-        setError('অর্ডারটি পাওয়া যায়নি। অনুগ্রহ করে সঠিক অর্ডার নম্বর ও মোবাইল নম্বর দিন।');
+        setError(language === 'bn' ? 'অর্ডারটি পাওয়া যায়নি। অনুগ্রহ করে সঠিক অর্ডার নম্বর ও মোবাইল নম্বর দিন।' : 'Order not found. Please check your order number and mobile phone.');
         setOrder(null);
       } else {
         const data = await res.json();
         setOrder(data);
       }
     } catch (err) {
-      setError('ট্র্যাকিং তথ্য সংগ্রহ করতে সমস্যা হয়েছে।');
+      setError(language === 'bn' ? 'ট্র্যাকিং তথ্য সংগ্রহ করতে সমস্যা হয়েছে।' : 'Error retrieving tracking information.');
     } finally {
       setLoading(false);
     }
@@ -68,10 +70,13 @@ function TrackOrderContent() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <div className="text-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-zinc-900">
-          অর্ডার ট্র্যাকিং (Track Your Order)
+          {t('অর্ডার ট্র্যাকিং', 'Track Your Order')}
         </h1>
         <p className="text-xs sm:text-sm text-zinc-500 mt-1">
-          আপনার অর্ডার নম্বর ও মোবাইল নম্বর দিয়ে বর্তমান পার্সেল স্ট্যাটাস জানুন
+          {t(
+            'আপনার অর্ডার নম্বর ও মোবাইল নম্বর দিয়ে বর্তমান পার্সেল স্ট্যাটাস জানুন',
+            'Enter your order number and phone to track your package delivery status'
+          )}
         </p>
       </div>
 
@@ -80,28 +85,28 @@ function TrackOrderContent() {
         <form onSubmit={handleTrack} className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           <div className="sm:col-span-6">
             <label className="block text-xs font-bold text-zinc-700 mb-1">
-              অর্ডার নম্বর (Order Number)
+              {t('অর্ডার নম্বর', 'Order Number')}
             </label>
             <input
               type="text"
               required
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
-              placeholder="যেমন: GG-1001"
+              placeholder={t('যেমন: GG-1001', 'e.g. GG-1001')}
               className="w-full p-2.5 bg-zinc-50 border border-zinc-300 rounded-lg text-xs font-mono uppercase outline-none focus:border-[#D4AF37]"
             />
           </div>
 
           <div className="sm:col-span-6">
             <label className="block text-xs font-bold text-zinc-700 mb-1">
-              মোবাইল নম্বর (Phone Number)
+              {t('মোবাইল নম্বর', 'Mobile Number')}
             </label>
             <div className="flex gap-2">
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="017XXXXXXXX (অপশনাল)"
+                placeholder={t('017XXXXXXXX (ঐচ্ছিক)', '017XXXXXXXX (Optional)')}
                 className="flex-1 p-2.5 bg-zinc-50 border border-zinc-300 rounded-lg text-xs font-mono outline-none focus:border-[#D4AF37]"
               />
               <button
@@ -110,7 +115,7 @@ function TrackOrderContent() {
                 className="px-5 py-2.5 bg-[#D4AF37] hover:bg-[#b89528] text-black font-bold text-xs rounded-lg flex items-center gap-1.5 shadow"
               >
                 <Search size={14} />
-                <span>{loading ? '...' : 'ট্র্যাক'}</span>
+                <span>{loading ? '...' : t('ট্র্যাক', 'Track')}</span>
               </button>
             </div>
           </div>
@@ -131,9 +136,11 @@ function TrackOrderContent() {
           {/* Header Status Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b">
             <div>
-              <span className="text-xs text-zinc-400">অর্ডার নম্বর</span>
+              <span className="text-xs text-zinc-400">{t('অর্ডার নম্বর', 'Order Number')}</span>
               <h2 className="text-lg font-bold font-mono text-zinc-900">{order.orderNumber}</h2>
-              <p className="text-[11px] text-zinc-500">অর্ডার তারিখ: {formatDate(order.createdAt)}</p>
+              <p className="text-[11px] text-zinc-500">
+                {t('অর্ডার তারিখ: ', 'Order Date: ')}{formatDate(order.createdAt)}
+              </p>
             </div>
             <div>
               <span className={`inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${
@@ -158,31 +165,31 @@ function TrackOrderContent() {
                   <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-[#b89528] text-black' : 'bg-zinc-200 text-zinc-500'}`}>
                     1
                   </div>
-                  <span>গৃহীত</span>
+                  <span>{t('গৃহীত', 'Placed')}</span>
                 </div>
                 <div className={`space-y-1 ${currentStep >= 2 ? 'text-[#b89528] font-bold' : 'text-zinc-400'}`}>
                   <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-[#b89528] text-black' : 'bg-zinc-200 text-zinc-500'}`}>
                     2
                   </div>
-                  <span>কনফার্মড</span>
+                  <span>{t('কনফার্মড', 'Confirmed')}</span>
                 </div>
                 <div className={`space-y-1 ${currentStep >= 3 ? 'text-[#b89528] font-bold' : 'text-zinc-400'}`}>
                   <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-[#b89528] text-black' : 'bg-zinc-200 text-zinc-500'}`}>
                     3
                   </div>
-                  <span>প্রসেসিং</span>
+                  <span>{t('প্রসেসিং', 'Processing')}</span>
                 </div>
                 <div className={`space-y-1 ${currentStep >= 4 ? 'text-[#b89528] font-bold' : 'text-zinc-400'}`}>
                   <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${currentStep >= 4 ? 'bg-[#b89528] text-black' : 'bg-zinc-200 text-zinc-500'}`}>
                     4
                   </div>
-                  <span>কুরিয়ারে</span>
+                  <span>{t('কুরিয়ারে', 'Shipped')}</span>
                 </div>
                 <div className={`space-y-1 ${currentStep >= 5 ? 'text-emerald-700 font-bold' : 'text-zinc-400'}`}>
                   <div className={`w-8 h-8 mx-auto rounded-full flex items-center justify-center ${currentStep >= 5 ? 'bg-emerald-600 text-white' : 'bg-zinc-200 text-zinc-500'}`}>
                     ✓
                   </div>
-                  <span>ডেলিভার্ড</span>
+                  <span>{t('ডেলিভার্ড', 'Delivered')}</span>
                 </div>
               </div>
             </div>
@@ -191,26 +198,31 @@ function TrackOrderContent() {
           {order.status === 'CANCELLED' && (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-semibold flex items-center gap-2">
               <XCircle size={18} />
-              <span>এই অর্ডারটি বাতিল করা হয়েছে। কোনো জিজ্ঞাসা থাকলে আমাদের হটলাইনে যোগাযোগ করুন।</span>
+              <span>
+                {t(
+                  'এই অর্ডারটি বাতিল করা হয়েছে। কোনো জিজ্ঞাসা থাকলে আমাদের হটলাইনে যোগাযোগ করুন।',
+                  'This order was cancelled. Please contact our support hotline for any inquiries.'
+                )}
+              </span>
             </div>
           )}
 
           {/* Items and Address info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-4 border-t">
             <div>
-              <span className="font-bold text-zinc-800 block mb-2">গ্রাহক ও ডেলিভারি তথ্য:</span>
+              <span className="font-bold text-zinc-800 block mb-2">{t('গ্রাহক ও ডেলিভারি তথ্য:', 'Customer & Delivery Info:')}</span>
               <p className="text-zinc-700 font-medium">{order.customerName}</p>
               <p className="text-zinc-600">{order.customerAddress}</p>
-              <p className="text-zinc-600">জেলা: {order.district}</p>
-              <p className="text-zinc-600 font-mono">মোবাইল: {order.customerPhone}</p>
+              <p className="text-zinc-600">{t('জেলা: ', 'District: ')}{order.district}</p>
+              <p className="text-zinc-600 font-mono">{t('মোবাইল: ', 'Mobile: ')}{order.customerPhone}</p>
             </div>
 
             <div>
-              <span className="font-bold text-zinc-800 block mb-2">পেমেন্ট ও বিল:</span>
-              <p className="text-zinc-600">পেমেন্ট মেথড: {order.paymentMethod}</p>
-              <p className="text-zinc-600">পেমেন্ট স্ট্যাটাস: {order.paymentStatus}</p>
+              <span className="font-bold text-zinc-800 block mb-2">{t('পেমেন্ট ও বিল:', 'Payment & Bill:')}</span>
+              <p className="text-zinc-600">{t('পেমেন্ট মাধ্যম: ', 'Payment Method: ')}{order.paymentMethod}</p>
+              <p className="text-zinc-600">{t('পেমেন্ট স্ট্যাটাস: ', 'Payment Status: ')}{order.paymentStatus}</p>
               <p className="text-sm font-extrabold text-[#b89528] mt-1">
-                সর্বমোট: {formatPrice(order.grandTotal)}
+                {t('সর্বমোট: ', 'Total: ')}{formatPrice(order.grandTotal)}
               </p>
             </div>
           </div>
@@ -218,7 +230,7 @@ function TrackOrderContent() {
           {/* Status History Logs */}
           {order.statusHistory?.length > 0 && (
             <div className="pt-4 border-t">
-              <span className="font-bold text-xs text-zinc-800 block mb-2">স্ট্যাটাস ইতিহাস:</span>
+              <span className="font-bold text-xs text-zinc-800 block mb-2">{t('স্ট্যাটাস ইতিহাস:', 'Status History:')}</span>
               <div className="space-y-2 text-xs">
                 {order.statusHistory.map((h: any) => (
                   <div key={h.id} className="p-2.5 bg-zinc-50 rounded-lg flex items-center justify-between">
@@ -242,7 +254,7 @@ function TrackOrderContent() {
 export default function TrackOrderPage() {
   return (
     <StorefrontLayout>
-      <Suspense fallback={<div className="py-20 text-center text-xs">লোড হচ্ছে...</div>}>
+      <Suspense fallback={<div className="py-20 text-center text-xs">Loading...</div>}>
         <TrackOrderContent />
       </Suspense>
     </StorefrontLayout>

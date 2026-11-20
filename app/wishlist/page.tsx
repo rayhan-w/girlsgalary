@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { Heart, ShoppingBag, ArrowLeft, Trash2 } from 'lucide-react';
 import { StorefrontLayout } from '@/components/StorefrontLayout';
 import { useCart } from '@/context/CartContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 
 export default function WishlistPage() {
   const { wishlist, toggleWishlist, addToCart } = useCart();
+  const { language, t } = useLanguage();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,26 +40,31 @@ export default function WishlistPage() {
           <div className="flex items-center gap-2">
             <Heart size={24} className="fill-rose-600 text-rose-600" />
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-zinc-900">
-              পছন্দের তালিকা (My Wishlist)
+              {t('পছন্দের তালিকা', 'My Wishlist')}
             </h1>
           </div>
           <span className="text-xs text-zinc-500 font-medium">
-            {wishlist.length} টি পণ্য সংরক্ষিত
+            {wishlist.length} {t('টি পণ্য সংরক্ষিত', 'items saved')}
           </span>
         </div>
 
         {wishlist.length === 0 ? (
           <div className="py-16 text-center bg-zinc-50 rounded-2xl border border-zinc-200">
             <Heart size={48} className="text-zinc-300 mx-auto mb-3" />
-            <p className="text-base font-semibold text-zinc-800">আপনার পছন্দের তালিকা খালি</p>
+            <p className="text-base font-semibold text-zinc-800">
+              {t('আপনার পছন্দের তালিকা খালি', 'Your Wishlist is Empty')}
+            </p>
             <p className="text-xs text-zinc-500 mt-1">
-              যেকোনো পণ্যের ওপর হার্ট আইকনে ট্যাপ করে এখানে সংরক্ষণ করতে পারেন
+              {t(
+                'যেকোনো পণ্যের ওপর হার্ট আইকনে ট্যাপ করে এখানে সংরক্ষণ করতে পারেন',
+                'Tap the heart icon on any product to save it here for later'
+              )}
             </p>
             <Link
               href="/shop"
               className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#D4AF37] text-black font-bold text-xs rounded-xl hover:bg-[#b89528]"
             >
-              <span>শপিং করুন</span>
+              <span>{t('শপিং শুরু করুন', 'Start Shopping')}</span>
             </Link>
           </div>
         ) : (
@@ -82,7 +89,9 @@ export default function WishlistPage() {
 
                 <div className="p-3 flex flex-col justify-between flex-1">
                   <div>
-                    <h3 className="text-xs font-semibold text-zinc-900 line-clamp-1">{item.name}</h3>
+                    <h3 className="text-xs font-semibold text-zinc-900 line-clamp-1">
+                      {language === 'bn' && item.nameBn ? item.nameBn : item.name}
+                    </h3>
                     <div className="mt-1 flex items-baseline gap-2">
                       <span className="text-sm font-extrabold text-[#b89528]">{formatPrice(item.offerPrice)}</span>
                       {item.regularPrice > item.offerPrice && (
@@ -101,13 +110,13 @@ export default function WishlistPage() {
                         price: item.offerPrice,
                         regularPrice: item.regularPrice,
                         quantity: 1,
-                        maxStock: item.totalStock
+                        maxStock: item.totalStock || 10
                       })
                     }
-                    className="mt-3 w-full py-2 bg-black hover:bg-zinc-800 text-[#D4AF37] font-bold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+                    className="mt-3 w-full py-2 bg-black text-[#D4AF37] font-bold text-xs rounded-lg flex items-center justify-center gap-1.5 hover:bg-zinc-800"
                   >
-                    <ShoppingBag size={14} />
-                    <span>ব্যাগে যুক্ত করুন</span>
+                    <ShoppingBag size={13} />
+                    <span>{t('ব্যাগে যোগ করুন', 'Add to Bag')}</span>
                   </button>
                 </div>
               </div>

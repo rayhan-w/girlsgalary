@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, SlidersHorizontal, ChevronDown, X, Sparkles, Check } from 'lucide-react';
 import { ProductCard } from '@/components/ProductCard';
+import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 
 interface CatalogClientProps {
@@ -20,6 +21,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
   categoryBanner,
   initialSearch
 }) => {
+  const { language, t } = useLanguage();
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -109,6 +111,10 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
   const currentCategoryObj = categories.find((c) => c.slug === selectedCategory);
   const subCategories = currentCategoryObj?.subCategories || [];
 
+  const displayTitle = searchQuery
+    ? (language === 'bn' ? `অনুসন্ধান ফলাফল: "${searchQuery}"` : `Search results for: "${searchQuery}"`)
+    : (language === 'bn' ? (categoryNameBn || categoryName || 'সকল পণ্য') : (categoryName || categoryNameBn || 'All Products'));
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       
@@ -118,9 +124,11 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
           <img src={categoryBanner} alt={categoryName || 'Category'} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex items-center p-6 sm:p-10">
             <div>
-              <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest">কালেকশন</span>
+              <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest">
+                {t('কালেকশন', 'Collection')}
+              </span>
               <h1 className="text-2xl sm:text-4xl font-serif font-bold text-white mt-1">
-                {categoryNameBn || categoryName}
+                {language === 'bn' ? (categoryNameBn || categoryName) : (categoryName || categoryNameBn)}
               </h1>
             </div>
           </div>
@@ -131,10 +139,14 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200">
         <div>
           <h2 className="text-xl sm:text-2xl font-serif font-bold text-zinc-900">
-            {searchQuery ? `অনুসন্ধান ফলাফল: "${searchQuery}"` : (categoryNameBn || categoryName || 'সকল পণ্য')}
+            {displayTitle}
           </h2>
           <p className="text-xs text-zinc-500 mt-0.5">
-            মোট <span className="font-bold text-zinc-800">{totalCount}</span> টি পণ্য পাওয়া গেছে
+            {language === 'bn' ? (
+              <>মোট <span className="font-bold text-zinc-800">{totalCount}</span> টি পণ্য পাওয়া গেছে</>
+            ) : (
+              <>Total <span className="font-bold text-zinc-800">{totalCount}</span> products found</>
+            )}
           </p>
         </div>
 
@@ -146,7 +158,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
             className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-lg text-xs font-semibold"
           >
             <SlidersHorizontal size={14} />
-            <span>ফিল্টার</span>
+            <span>{t('ফিল্টার', 'Filters')}</span>
             {(inStockOnly || minPrice || maxPrice || selectedSubCategory) && (
               <span className="w-2 h-2 rounded-full bg-[#b89528]" />
             )}
@@ -154,16 +166,16 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
 
           {/* Sort Dropdown */}
           <div className="flex items-center gap-2 bg-white border border-zinc-300 rounded-lg px-2.5 py-1.5 text-xs">
-            <span className="text-zinc-500 hidden sm:inline">সর্ট করুন:</span>
+            <span className="text-zinc-500 hidden sm:inline">{t('সর্ট করুন:', 'Sort By:')}</span>
             <select
               value={selectedSort}
               onChange={(e) => setSelectedSort(e.target.value)}
               className="bg-transparent font-medium text-zinc-800 outline-none cursor-pointer"
             >
-              <option value="newest">সর্বশেষ যুক্ত (Newest)</option>
-              <option value="price_asc">মূল্য: কম থেকে বেশি (Low to High)</option>
-              <option value="price_desc">মূল্য: বেশি থেকে কম (High to Low)</option>
-              <option value="best_selling">জনপ্রিয় ও বিক্রিত (Best Selling)</option>
+              <option value="newest">{t('সর্বশেষ যুক্ত', 'Newest Arrivals')}</option>
+              <option value="price_asc">{t('মূল্য: কম থেকে বেশি', 'Price: Low to High')}</option>
+              <option value="price_desc">{t('মূল্য: বেশি থেকে কম', 'Price: High to Low')}</option>
+              <option value="best_selling">{t('জনপ্রিয় ও সেরা বিক্রিত', 'Best Selling')}</option>
             </select>
           </div>
         </div>
@@ -177,20 +189,20 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
             <h3 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
               <Filter size={16} className="text-[#b89528]" />
-              <span>ফিল্টার করুন</span>
+              <span>{t('ফিল্টার', 'Filters')}</span>
             </h3>
             <button
               onClick={handleResetFilters}
               className="text-xs text-rose-600 hover:underline font-medium"
             >
-              রিসেট
+              {t('রিসেট', 'Reset')}
             </button>
           </div>
 
           {/* Categories Filter */}
           {!initialCategorySlug && (
             <div>
-              <label className="text-xs font-bold text-zinc-900 block mb-2">ক্যাটাগরি</label>
+              <label className="text-xs font-bold text-zinc-900 block mb-2">{t('ক্যাটাগরি', 'Categories')}</label>
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
                 <button
                   onClick={() => { setSelectedCategory(''); setSelectedSubCategory(''); }}
@@ -198,7 +210,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                     !selectedCategory ? 'bg-[#fbf6e6] text-[#b89528] font-bold' : 'text-zinc-600 hover:bg-zinc-200'
                   }`}
                 >
-                  সকল ক্যাটাগরি
+                  {t('সকল ক্যাটাগরি', 'All Categories')}
                 </button>
                 {categories.map((c) => (
                   <button
@@ -208,7 +220,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                       selectedCategory === c.slug ? 'bg-[#fbf6e6] text-[#b89528] font-bold' : 'text-zinc-600 hover:bg-zinc-200'
                     }`}
                   >
-                    {c.nameBn || c.name}
+                    {language === 'bn' && c.nameBn ? c.nameBn : c.name}
                   </button>
                 ))}
               </div>
@@ -218,7 +230,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
           {/* Subcategories if any */}
           {subCategories.length > 0 && (
             <div>
-              <label className="text-xs font-bold text-zinc-900 block mb-2">সাব-ক্যাটাগরি</label>
+              <label className="text-xs font-bold text-zinc-900 block mb-2">{t('সাব-ক্যাটাগরি', 'Sub-Categories')}</label>
               <div className="space-y-1 text-xs">
                 <button
                   onClick={() => setSelectedSubCategory('')}
@@ -226,7 +238,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                     !selectedSubCategory ? 'bg-[#fbf6e6] text-[#b89528] font-bold' : 'text-zinc-600 hover:bg-zinc-200'
                   }`}
                 >
-                  সব সাব-ক্যাটাগরি
+                  {t('সব সাব-ক্যাটাগরি', 'All Sub-Categories')}
                 </button>
                 {subCategories.map((sub: any) => (
                   <button
@@ -236,7 +248,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                       selectedSubCategory === sub.slug ? 'bg-[#fbf6e6] text-[#b89528] font-bold' : 'text-zinc-600 hover:bg-zinc-200'
                     }`}
                   >
-                    • {sub.nameBn || sub.name}
+                    • {language === 'bn' && sub.nameBn ? sub.nameBn : sub.name}
                   </button>
                 ))}
               </div>
@@ -252,17 +264,19 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                 onChange={(e) => setInStockOnly(e.target.checked)}
                 className="w-4 h-4 rounded text-[#D4AF37] focus:ring-[#D4AF37]"
               />
-              <span>শুধু স্টকে থাকা পণ্য (In Stock Only)</span>
+              <span>{t('শুধু স্টকে থাকা পণ্য', 'In Stock Only')}</span>
             </label>
           </div>
 
           {/* Price Range Filter */}
           <div className="pt-2 border-t border-zinc-200">
-            <label className="text-xs font-bold text-zinc-900 block mb-2">মূল্য পরিসর (টাকা)</label>
+            <label className="text-xs font-bold text-zinc-900 block mb-2">
+              {t('মূল্য পরিসর (টাকা)', 'Price Range (BDT)')}
+            </label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
-                placeholder="মিনিমাম"
+                placeholder={t('মিনিমাম', 'Min')}
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
                 className="w-1/2 p-2 bg-white border border-zinc-300 rounded text-xs outline-none focus:border-[#D4AF37]"
@@ -270,7 +284,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
               <span className="text-zinc-400">-</span>
               <input
                 type="number"
-                placeholder="ম্যাক্সিমাম"
+                placeholder={t('ম্যাক্সিমাম', 'Max')}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 className="w-1/2 p-2 bg-white border border-zinc-300 rounded text-xs outline-none focus:border-[#D4AF37]"
@@ -283,15 +297,20 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
         <main className="lg:col-span-3">
           {products.length === 0 && !loading ? (
             <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-12 text-center">
-              <p className="text-base font-semibold text-zinc-800">কোনো পণ্য পাওয়া যায়নি</p>
+              <p className="text-base font-semibold text-zinc-800">
+                {t('কোনো পণ্য পাওয়া যায়নি', 'No products found')}
+              </p>
               <p className="text-xs text-zinc-500 mt-1">
-                অন্য কোনো ফিল্টার বা অনুসন্ধান শব্দ ব্যবহার করে দেখুন
+                {t(
+                  'অন্য কোনো ফিল্টার বা অনুসন্ধান শব্দ ব্যবহার করে দেখুন',
+                  'Try adjusting your search or filters to find what you are looking for'
+                )}
               </p>
               <button
                 onClick={handleResetFilters}
-                className="mt-4 px-4 py-2 bg-[#D4AF37] text-black text-xs font-bold rounded-lg"
+                className="mt-4 px-4 py-2 bg-[#D4AF37] text-black text-xs font-bold rounded-lg shadow"
               >
-                সব ফিল্টার মুছুন
+                {t('সব ফিল্টার মুছুন', 'Clear All Filters')}
               </button>
             </div>
           ) : (
@@ -311,7 +330,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                     totalStock={p.totalStock}
                     averageRating={p.averageRating}
                     reviewCount={p.reviewCount}
-                    categoryName={p.category?.nameBn || p.category?.name}
+                    categoryName={language === 'bn' ? (p.category?.nameBn || p.category?.name) : p.category?.name}
                   />
                 ))}
               </div>
@@ -324,10 +343,14 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                     disabled={loading}
                     className="px-8 py-3 bg-white border-2 border-black hover:bg-black hover:text-[#D4AF37] text-black font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm disabled:opacity-50"
                   >
-                    {loading ? 'লোড হচ্ছে...' : 'আরও পণ্য দেখুন (Load More)'}
+                    {loading ? t('লোড হচ্ছে...', 'Loading...') : t('আরও পণ্য দেখুন', 'Load More Products')}
                   </button>
                   <p className="text-[11px] text-zinc-500 mt-2">
-                    {products.length} of {totalCount} টি পণ্য প্রদর্শিত হচ্ছে
+                    {language === 'bn' ? (
+                      <>{products.length} / {totalCount} টি পণ্য প্রদর্শিত হচ্ছে</>
+                    ) : (
+                      <>Showing {products.length} of {totalCount} products</>
+                    )}
                   </p>
                 </div>
               )}
@@ -338,7 +361,6 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
       </div>
 
       {/* Mobile Bottom Sheet Filters Modal */}
-      {/* Page 3 Rule: On mobile, filters open as a bottom sheet */}
       {isFilterSheetOpen && (
         <div className="fixed inset-0 z-50 flex items-end lg:hidden">
           <div
@@ -350,7 +372,7 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
             <div className="flex items-center justify-between pb-3 border-b mb-4">
               <h3 className="font-serif font-bold text-base text-zinc-900 flex items-center gap-2">
                 <SlidersHorizontal size={16} className="text-[#b89528]" />
-                <span>ফিল্টার সমূহ</span>
+                <span>{t('ফিল্টার সমূহ', 'Filter Products')}</span>
               </h3>
               <button
                 onClick={() => setIsFilterSheetOpen(false)}
@@ -369,27 +391,29 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                   onChange={(e) => setInStockOnly(e.target.checked)}
                   className="w-4 h-4 rounded text-[#D4AF37]"
                 />
-                <span>শুধু স্টকে থাকা পণ্য (In Stock Only)</span>
+                <span>{t('শুধু স্টকে থাকা পণ্য', 'In Stock Only')}</span>
               </label>
 
               {/* Price range */}
               <div>
-                <label className="font-bold text-zinc-900 block mb-2">মূল্য পরিসর (টাকা)</label>
+                <label className="font-bold text-zinc-900 block mb-2">
+                  {t('মূল্য পরিসর (টাকা)', 'Price Range (BDT)')}
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
-                    placeholder="মিনিমাম"
+                    placeholder={t('মিনিমাম', 'Min')}
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-1/2 p-2 border rounded"
+                    className="w-1/2 p-2 border rounded outline-none"
                   />
                   <span>-</span>
                   <input
                     type="number"
-                    placeholder="ম্যাক্সিমাম"
+                    placeholder={t('ম্যাক্সিমাম', 'Max')}
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-1/2 p-2 border rounded"
+                    className="w-1/2 p-2 border rounded outline-none"
                   />
                 </div>
               </div>
@@ -397,25 +421,25 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
               {/* Subcategories */}
               {subCategories.length > 0 && (
                 <div>
-                  <label className="font-bold text-zinc-900 block mb-2">সাব-ক্যাটাগরি</label>
+                  <label className="font-bold text-zinc-900 block mb-2">{t('সাব-ক্যাটাগরি', 'Sub-Categories')}</label>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setSelectedSubCategory('')}
                       className={`px-3 py-1.5 rounded-full border ${
-                        !selectedSubCategory ? 'bg-black text-[#D4AF37] border-black' : 'border-zinc-300'
+                        !selectedSubCategory ? 'bg-black text-[#D4AF37] border-black font-bold' : 'border-zinc-300'
                       }`}
                     >
-                      সব
+                      {t('সব', 'All')}
                     </button>
                     {subCategories.map((sub: any) => (
                       <button
                         key={sub.id}
                         onClick={() => setSelectedSubCategory(sub.slug)}
                         className={`px-3 py-1.5 rounded-full border ${
-                          selectedSubCategory === sub.slug ? 'bg-black text-[#D4AF37] border-black' : 'border-zinc-300'
+                          selectedSubCategory === sub.slug ? 'bg-black text-[#D4AF37] border-black font-bold' : 'border-zinc-300'
                         }`}
                       >
-                        {sub.nameBn || sub.name}
+                        {language === 'bn' && sub.nameBn ? sub.nameBn : sub.name}
                       </button>
                     ))}
                   </div>
@@ -428,13 +452,13 @@ export const CatalogClient: React.FC<CatalogClientProps> = ({
                 onClick={() => { handleResetFilters(); setIsFilterSheetOpen(false); }}
                 className="flex-1 py-3 border border-zinc-300 rounded-xl font-bold text-zinc-700"
               >
-                রিসেট
+                {t('রিসেট', 'Reset')}
               </button>
               <button
                 onClick={() => setIsFilterSheetOpen(false)}
-                className="flex-1 py-3 bg-[#D4AF37] text-black rounded-xl font-bold"
+                className="flex-1 py-3 bg-[#D4AF37] text-black rounded-xl font-bold shadow"
               >
-                প্রয়োগ করুন
+                {t('প্রয়োগ করুন', 'Apply Filters')}
               </button>
             </div>
           </div>
