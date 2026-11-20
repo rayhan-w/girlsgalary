@@ -8,9 +8,9 @@ import { useLanguage } from '@/context/LanguageContext';
 interface BannerItem {
   id: string;
   title: string;
-  titleEn?: string;
+  titleEn: string;
   imageUrl: string;
-  mobileImageUrl?: string;
+  mobileImageUrl: string;
   linkUrl: string;
 }
 
@@ -21,35 +21,45 @@ export const HeroSlider: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    // Curated high-resolution fashion slider banners (AMIRÁ Edge-to-Edge Style)
-    const defaultBanners: BannerItem[] = [
+    // Official AMIRÁ-Style Authentic Landscape Web Banners & Mobile Banners
+    // Desktop: 1920x650 / 1900x600 (High-res uncropped luxury fashion banners)
+    // Mobile: 420x480 (Custom responsive portrait mobile banners)
+    const curatedBanners: BannerItem[] = [
       {
         id: '1',
-        title: 'এক্সক্লুসিভ কালেকশন ২০২৬',
-        titleEn: 'Exclusive Collection 2026',
-        imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1920&q=80',
-        mobileImageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=900&q=80',
+        title: 'এক্সক্লুসিভ ফ্যাশন ও ঈদ কালেকশন',
+        titleEn: 'Exclusive Fashion & Eid Collection',
+        imageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/Web-banner-intermix-25.jpg',
+        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/MOBILE-banner-intermix-25-420-x-480-px.jpg',
         linkUrl: '/category/saree'
       },
       {
         id: '2',
-        title: 'নিউ অ্যারাইভাল থ্রি পিস ও লন',
-        titleEn: 'New Arrival Three Piece & Lawn',
-        imageUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1920&q=80',
-        mobileImageUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=900&q=80',
+        title: 'নিউ অ্যারাইভাল থ্রি পিস ও লন কালেকশন',
+        titleEn: 'New Arrival Three Piece & Lawn Collection',
+        imageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/Web-banner-durga-puja-25.jpg',
+        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/mobile-banner-durga-puja-25.jpg',
         linkUrl: '/category/three-piece'
       },
       {
         id: '3',
-        title: 'শতভাগ অথেনটিক কসমেটিকস ও কুন্দন জুয়েলারি',
-        titleEn: '100% Authentic Cosmetics & Kundan Jewellery',
-        imageUrl: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1920&q=80',
-        mobileImageUrl: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=900&q=80',
+        title: 'লাক্সারি বুটিক ও ঈদ স্পেশাল কালেকশন',
+        titleEn: 'Luxury Boutique & Eid Special Collection',
+        imageUrl: 'https://amirabd.com/wp-content/uploads/2025/07/Web-banner-eidul-adha-EDIT-25.jpg',
+        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/05/2.1.jpg',
+        linkUrl: '/category/kurti'
+      },
+      {
+        id: '4',
+        title: 'প্রিমিয়াম অথেনটিক কসমেটিকস ও ফ্যাশন',
+        titleEn: 'Premium Authentic Cosmetics & Fashion',
+        imageUrl: 'https://amirabd.com/wp-content/uploads/2026/05/2.jpg',
+        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/07/MOBILE.webp',
         linkUrl: '/category/cosmetics'
       }
     ];
 
-    setBanners(defaultBanners);
+    setBanners(curatedBanners);
   }, []);
 
   // Autoplay every 5 seconds (pauses on hover)
@@ -57,55 +67,61 @@ export const HeroSlider: React.FC = () => {
     if (banners.length <= 1 || isPaused) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % banners.length);
-    }, 5500);
+    }, 5000);
     return () => clearInterval(interval);
   }, [banners.length, isPaused]);
 
   if (!banners.length) return null;
 
-  const current = banners[currentIndex];
-  const title = language === 'bn' ? current.title : (current.titleEn || current.title);
-
   return (
     <section 
-      className="relative w-full overflow-hidden bg-zinc-950 select-none group"
+      className="relative w-full overflow-hidden bg-white select-none group"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* AMIRÁ Style Clean Edge-to-Edge Responsive Banner Slider */}
-      <div className="relative w-full aspect-[21/9] sm:aspect-[16/7] md:aspect-[2.4/1] max-h-[560px] flex items-center justify-center overflow-hidden">
-        
-        {/* Soft Ambient Glow in background matching the photo */}
-        <div
-          className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-20 scale-105 pointer-events-none transition-all duration-1000"
-          style={{ backgroundImage: `url(${current.imageUrl})` }}
-        />
+      {/* 
+        Full Uncropped Responsive Banner Slider (AMIRÁ Exact Ratio)
+        Desktop: aspect-[1920/650] (matches 1920x650 banner dimensions exactly with 0% cropping)
+        Mobile: aspect-[420/480] (matches 420x480 mobile banner dimensions with 0% cropping)
+      */}
+      <div className="relative w-full aspect-[420/480] sm:aspect-[1920/650] max-h-[650px] overflow-hidden bg-zinc-100">
+        {banners.map((item, index) => {
+          const isActive = index === currentIndex;
+          const bannerTitle = language === 'bn' ? item.title : item.titleEn;
 
-        {/* Clickable Full Banner (Entire image links to destination) */}
-        <Link 
-          href={current.linkUrl}
-          className="relative w-full h-full block"
-          title={title}
-        >
-          {/* Desktop/Tablet Image: Clean, Crisp, Full Picture */}
-          <img
-            src={current.imageUrl}
-            alt={title}
-            className="hidden sm:block w-full h-full object-cover object-center transition-all duration-700 ease-out"
-          />
+          return (
+            <div
+              key={item.id}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              <Link
+                href={item.linkUrl}
+                className="relative block w-full h-full"
+                title={bannerTitle}
+              >
+                {/* Desktop/Tablet Image: 100% Full Uncropped Picture */}
+                <img
+                  src={item.imageUrl}
+                  alt={bannerTitle}
+                  className="hidden sm:block w-full h-full object-cover object-center"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                />
 
-          {/* Mobile Image: Framed cleanly for mobile screens */}
-          <img
-            src={current.mobileImageUrl || current.imageUrl}
-            alt={title}
-            className="sm:hidden w-full h-full object-cover object-top transition-all duration-700 ease-out"
-          />
+                {/* Mobile Image: 100% Full Uncropped Mobile Banner */}
+                <img
+                  src={item.mobileImageUrl || item.imageUrl}
+                  alt={bannerTitle}
+                  className="block sm:hidden w-full h-full object-cover object-center"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                />
+              </Link>
+            </div>
+          );
+        })}
 
-          {/* Subtle Bottom Vignette for sleek look */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-        </Link>
-
-        {/* Sleek Floating Chevrons (Appear on hover like AMIRÁ) */}
+        {/* Sleek Minimalist Chevrons (Appear on hover) */}
         {banners.length > 1 && (
           <>
             <button
@@ -113,27 +129,27 @@ export const HeroSlider: React.FC = () => {
                 e.preventDefault();
                 setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
               }}
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-9 sm:w-11 h-9 sm:h-11 rounded-full bg-white/80 hover:bg-white text-zinc-900 flex items-center justify-center shadow-lg transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-9 sm:w-11 h-9 sm:h-11 rounded-full bg-white/85 hover:bg-white text-zinc-900 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95"
               aria-label="Previous Slide"
             >
-              <ChevronLeft size={22} />
+              <ChevronLeft size={20} />
             </button>
             <button
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentIndex((prev) => (prev + 1) % banners.length);
               }}
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-9 sm:w-11 h-9 sm:h-11 rounded-full bg-white/80 hover:bg-white text-zinc-900 flex items-center justify-center shadow-lg transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-9 sm:w-11 h-9 sm:h-11 rounded-full bg-white/85 hover:bg-white text-zinc-900 flex items-center justify-center shadow-md transition-all opacity-0 group-hover:opacity-100 z-20 active:scale-95"
               aria-label="Next Slide"
             >
-              <ChevronRight size={22} />
+              <ChevronRight size={20} />
             </button>
           </>
         )}
 
-        {/* Delicate Bottom Indicator Pills */}
+        {/* Delicate AMIRÁ-Style Bottom Indicators */}
         {banners.length > 1 && (
-          <div className="absolute bottom-3 sm:bottom-5 inset-x-0 z-20 flex items-center justify-center gap-2">
+          <div className="absolute bottom-3 sm:bottom-4 inset-x-0 z-20 flex items-center justify-center gap-2">
             {banners.map((_, idx) => (
               <button
                 key={idx}
@@ -141,17 +157,16 @@ export const HeroSlider: React.FC = () => {
                   e.preventDefault();
                   setCurrentIndex(idx);
                 }}
-                className={`h-1 rounded-full transition-all duration-300 ${
+                className={`h-1.5 rounded-full transition-all duration-300 ${
                   currentIndex === idx
-                    ? 'w-8 bg-[#D4AF37] shadow-sm'
-                    : 'w-2 bg-white/50 hover:bg-white/80'
+                    ? 'w-7 bg-zinc-900 shadow-sm'
+                    : 'w-2 bg-zinc-400/60 hover:bg-zinc-700'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>
         )}
-
       </div>
     </section>
   );
