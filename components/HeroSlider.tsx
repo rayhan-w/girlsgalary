@@ -29,32 +29,32 @@ export const HeroSlider: React.FC = () => {
         id: '1',
         title: 'এক্সক্লুসিভ ফ্যাশন ও ঈদ কালেকশন',
         titleEn: 'Exclusive Fashion & Eid Collection',
-        imageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/Web-banner-intermix-25.jpg',
-        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/MOBILE-banner-intermix-25-420-x-480-px.jpg',
+        imageUrl: '/images/banners/banner-1.webp',
+        mobileImageUrl: '/images/banners/banner-1-mobile.webp',
         linkUrl: '/category/saree'
       },
       {
         id: '2',
         title: 'নিউ অ্যারাইভাল থ্রি পিস ও লন কালেকশন',
         titleEn: 'New Arrival Three Piece & Lawn Collection',
-        imageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/Web-banner-durga-puja-25.jpg',
-        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/01/mobile-banner-durga-puja-25.jpg',
+        imageUrl: '/images/banners/banner-2.webp',
+        mobileImageUrl: '/images/banners/banner-2-mobile.webp',
         linkUrl: '/category/three-piece'
       },
       {
         id: '3',
         title: 'লাক্সারি বুটিক ও ঈদ স্পেশাল কালেকশন',
         titleEn: 'Luxury Boutique & Eid Special Collection',
-        imageUrl: 'https://amirabd.com/wp-content/uploads/2025/07/Web-banner-eidul-adha-EDIT-25.jpg',
-        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/05/2.1.jpg',
+        imageUrl: '/images/banners/banner-3.jpg',
+        mobileImageUrl: '/images/banners/banner-3-mobile.jpg',
         linkUrl: '/category/kurti'
       },
       {
         id: '4',
         title: 'প্রিমিয়াম অথেনটিক কসমেটিকস ও ফ্যাশন',
         titleEn: 'Premium Authentic Cosmetics & Fashion',
-        imageUrl: 'https://amirabd.com/wp-content/uploads/2026/05/2.jpg',
-        mobileImageUrl: 'https://amirabd.com/wp-content/uploads/2026/07/MOBILE.webp',
+        imageUrl: '/images/banners/banner-4.jpg',
+        mobileImageUrl: '/images/banners/banner-4-mobile.webp',
         linkUrl: '/category/cosmetics'
       }
     ];
