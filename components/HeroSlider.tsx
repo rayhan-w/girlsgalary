@@ -14,53 +14,47 @@ interface BannerItem {
   linkUrl: string;
 }
 
+// 100% Authentic Ladies Fashion Banners (Saree, Three-Piece, Kurti, Pret)
+const LADIES_BANNERS: BannerItem[] = [
+  {
+    id: '1',
+    title: 'এক্সক্লুসিভ সামার ও প্রিমিয়াম শাড়ি কালেকশন',
+    titleEn: 'Exclusive Summer & Premium Saree Collection',
+    imageUrl: '/images/banners/banner-ladies-1.webp',
+    mobileImageUrl: '/images/banners/banner-ladies-1-mobile.webp',
+    linkUrl: '/category/saree'
+  },
+  {
+    id: '2',
+    title: 'নিউ অ্যারাইভাল থ্রি পিস ও লন কালেকশন',
+    titleEn: 'New Arrival Three Piece & Lawn Collection',
+    imageUrl: '/images/banners/banner-ladies-2.jpg',
+    mobileImageUrl: '/images/banners/banner-ladies-2-mobile.jpg',
+    linkUrl: '/category/three-piece'
+  },
+  {
+    id: '3',
+    title: 'লাক্সারি ডিজাইনার কুর্তি ও এথনিক কালেকশন',
+    titleEn: 'Luxury Designer Kurti & Ethnic Collection',
+    imageUrl: '/images/banners/banner-ladies-3.jpg',
+    mobileImageUrl: '/images/banners/banner-ladies-3-mobile.jpg',
+    linkUrl: '/category/kurti'
+  },
+  {
+    id: '4',
+    title: 'ঐতিহ্যবাহী ঢাকাই জামদানি ও সিল্ক শাড়ি',
+    titleEn: 'Traditional Dhakai Jamdani & Silk Saree',
+    imageUrl: '/images/banners/banner-ladies-5.jpg',
+    mobileImageUrl: '/images/banners/banner-ladies-5-mobile.jpg',
+    linkUrl: '/category/saree'
+  }
+];
+
 export const HeroSlider: React.FC = () => {
   const { language } = useLanguage();
-  const [banners, setBanners] = useState<BannerItem[]>([]);
+  const [banners, setBanners] = useState<BannerItem[]>(LADIES_BANNERS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    // Official AMIRÁ-Style Authentic Landscape Web Banners & Mobile Banners
-    // Desktop: 1920x650 / 1900x600 (High-res uncropped luxury fashion banners)
-    // Mobile: 420x480 (Custom responsive portrait mobile banners)
-    const curatedBanners: BannerItem[] = [
-      {
-        id: '1',
-        title: 'এক্সক্লুসিভ ফ্যাশন ও ঈদ কালেকশন',
-        titleEn: 'Exclusive Fashion & Eid Collection',
-        imageUrl: '/images/banners/banner-1.webp',
-        mobileImageUrl: '/images/banners/banner-1-mobile.webp',
-        linkUrl: '/category/saree'
-      },
-      {
-        id: '2',
-        title: 'নিউ অ্যারাইভাল থ্রি পিস ও লন কালেকশন',
-        titleEn: 'New Arrival Three Piece & Lawn Collection',
-        imageUrl: '/images/banners/banner-2.webp',
-        mobileImageUrl: '/images/banners/banner-2-mobile.webp',
-        linkUrl: '/category/three-piece'
-      },
-      {
-        id: '3',
-        title: 'লাক্সারি বুটিক ও ঈদ স্পেশাল কালেকশন',
-        titleEn: 'Luxury Boutique & Eid Special Collection',
-        imageUrl: '/images/banners/banner-3.jpg',
-        mobileImageUrl: '/images/banners/banner-3-mobile.jpg',
-        linkUrl: '/category/kurti'
-      },
-      {
-        id: '4',
-        title: 'প্রিমিয়াম অথেনটিক কসমেটিকস ও ফ্যাশন',
-        titleEn: 'Premium Authentic Cosmetics & Fashion',
-        imageUrl: '/images/banners/banner-4.jpg',
-        mobileImageUrl: '/images/banners/banner-4-mobile.webp',
-        linkUrl: '/category/cosmetics'
-      }
-    ];
-
-    setBanners(curatedBanners);
-  }, []);
 
   // Autoplay every 5 seconds (pauses on hover)
   useEffect(() => {
