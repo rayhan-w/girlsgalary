@@ -5,15 +5,21 @@ export interface District {
 }
 
 export const BANGLADESH_DISTRICTS: District[] = [
-  // Dhaka Metro
-  { name: 'Dhaka', bn: 'ঢাকা', zone: 'inside_dhaka' },
+  // Saidpur & Nilphamari (Local Delivery Zone - ৳70)
+  { name: 'Saidpur', bn: 'সৈয়দপুর', zone: 'inside_dhaka' },
+  { name: 'Nilphamari', bn: 'নীলফামারী', zone: 'inside_dhaka' },
 
-  // Near Dhaka (Greater Dhaka / Suburbs)
-  { name: 'Gazipur', bn: 'গাজীপুর', zone: 'near_dhaka' },
-  { name: 'Narayanganj', bn: 'নারায়ণগঞ্জ', zone: 'near_dhaka' },
-  { name: 'Munshiganj', bn: 'মুন্সীগঞ্জ', zone: 'near_dhaka' },
-  { name: 'Manikganj', bn: 'মানিকগঞ্জ', zone: 'near_dhaka' },
-  { name: 'Narsingdi', bn: 'নরসিংদী', zone: 'near_dhaka' },
+  // Near Saidpur (Rangpur Division / Sub-area - ৳100)
+  { name: 'Rangpur', bn: 'রংপুর', zone: 'near_dhaka' },
+  { name: 'Dinajpur', bn: 'দিনাজপুর', zone: 'near_dhaka' },
+
+  // Metro & Nationwide (৳130)
+  { name: 'Dhaka', bn: 'ঢাকা', zone: 'outside_dhaka' },
+  { name: 'Gazipur', bn: 'গাজীপুর', zone: 'outside_dhaka' },
+  { name: 'Narayanganj', bn: 'নারায়ণগঞ্জ', zone: 'outside_dhaka' },
+  { name: 'Munshiganj', bn: 'মুন্সীগঞ্জ', zone: 'outside_dhaka' },
+  { name: 'Manikganj', bn: 'মানিকগঞ্জ', zone: 'outside_dhaka' },
+  { name: 'Narsingdi', bn: 'নরসিংদী', zone: 'outside_dhaka' },
 
   // Outside Dhaka
   { name: 'Bagerhat', bn: 'বাগেরহাট', zone: 'outside_dhaka' },
@@ -55,7 +61,6 @@ export const BANGLADESH_DISTRICTS: District[] = [
   { name: 'Narail', bn: 'নড়াইল', zone: 'outside_dhaka' },
   { name: 'Natore', bn: 'নাটোর', zone: 'outside_dhaka' },
   { name: 'Netrokona', bn: 'নেত্রকোণা', zone: 'outside_dhaka' },
-  { name: 'Nilphamari', bn: 'নীলফামারী', zone: 'outside_dhaka' },
   { name: 'Noakhali', bn: 'নোয়াখালী', zone: 'outside_dhaka' },
   { name: 'Pabna', bn: 'পাবনা', zone: 'outside_dhaka' },
   { name: 'Panchagarh', bn: 'পঞ্চগড়', zone: 'outside_dhaka' },
@@ -64,7 +69,6 @@ export const BANGLADESH_DISTRICTS: District[] = [
   { name: 'Rajbari', bn: 'রাজবাড়ী', zone: 'outside_dhaka' },
   { name: 'Rajshahi', bn: 'রাজশাহী', zone: 'outside_dhaka' },
   { name: 'Rangamati', bn: 'রাঙ্গামাটি', zone: 'outside_dhaka' },
-  { name: 'Rangpur', bn: 'রংপুর', zone: 'outside_dhaka' },
   { name: 'Satkhira', bn: 'সাতক্ষীরা', zone: 'outside_dhaka' },
   { name: 'Shariatpur', bn: 'শরীয়তপুর', zone: 'outside_dhaka' },
   { name: 'Sherpur', bn: 'শেরপুর', zone: 'outside_dhaka' },

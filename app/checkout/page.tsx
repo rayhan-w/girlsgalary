@@ -28,7 +28,7 @@ export default function CheckoutPage() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [district, setDistrict] = useState('Dhaka');
+  const [district, setDistrict] = useState('Saidpur');
   const [orderNote, setOrderNote] = useState('');
 
   // Delivery zone in summary (Inside Dhaka 70, Near Dhaka 100, Outside Dhaka 130)
@@ -375,7 +375,7 @@ export default function CheckoutPage() {
                       <span>{t('বিকাশ সেন্ড মানি', 'bKash Send Money')}</span>
                     </span>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      {t('বিকাশ নম্বর: ', 'bKash Number: ')}<span className="font-mono font-bold text-black">{settings?.bkashNumber || '01712-345678'}</span> (Personal)
+                      {t('বিকাশ নম্বর: ', 'bKash Number: ')}<span className="font-mono font-bold text-black">{settings?.bkashNumber || '01307-214246'}</span> (Personal)
                     </p>
                   </div>
                 </label>
@@ -402,7 +402,7 @@ export default function CheckoutPage() {
                       <span>{t('নগদ সেন্ড মানি', 'Nagad Send Money')}</span>
                     </span>
                     <p className="text-[11px] text-zinc-500 mt-0.5">
-                      {t('নগদ নম্বর: ', 'Nagad Number: ')}<span className="font-mono font-bold text-black">{settings?.nagadNumber || '01712-345678'}</span> (Personal)
+                      {t('নগদ নম্বর: ', 'Nagad Number: ')}<span className="font-mono font-bold text-black">{settings?.nagadNumber || '01307-214246'}</span> (Personal)
                     </p>
                   </div>
                 </label>
@@ -505,7 +505,7 @@ export default function CheckoutPage() {
                         onChange={() => setDeliveryZone('inside_dhaka')}
                         className="text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
-                      <span>{t('ঢাকা সিটি', 'Inside Dhaka City')}</span>
+                      <span>{t('সৈয়দপুর শহর', 'Inside Saidpur City')}</span>
                     </div>
                     <span>{isFreeDelivery ? t('ফ্রি', 'Free') : formatPrice(chargeInside)}</span>
                   </label>
@@ -525,7 +525,7 @@ export default function CheckoutPage() {
                         onChange={() => setDeliveryZone('near_dhaka')}
                         className="text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
-                      <span>{t('ঢাকা সাব-এরিয়া / পার্শ্ববর্তী', 'Near Dhaka Sub-area')}</span>
+                      <span>{t('সৈয়দপুর আশপাশ / রংপুর / দিনাজপুর', 'Near Saidpur (Rangpur/Dinajpur)')}</span>
                     </div>
                     <span>{isFreeDelivery ? t('ফ্রি', 'Free') : formatPrice(chargeNear)}</span>
                   </label>
@@ -545,7 +545,7 @@ export default function CheckoutPage() {
                         onChange={() => setDeliveryZone('outside_dhaka')}
                         className="text-[#D4AF37] focus:ring-[#D4AF37]"
                       />
-                      <span>{t('ঢাকার বাইরে সারা বাংলাদেশ', 'Outside Dhaka (Nationwide)')}</span>
+                      <span>{t('সৈয়দপুরের বাইরে সারা বাংলাদেশ', 'Outside Saidpur (Nationwide)')}</span>
                     </div>
                     <span>{isFreeDelivery ? t('ফ্রি', 'Free') : formatPrice(chargeOutside)}</span>
                   </label>

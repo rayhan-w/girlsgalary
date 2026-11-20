@@ -22,9 +22,9 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({
-  hotline = '01712-345678',
-  whatsappNumber = '8801712345678',
-  address = 'Shop #42, Level 3, Eastern Plaza / Mirpur-10, Dhaka, Bangladesh',
+  hotline = '01307-214246',
+  whatsappNumber = '8801307214246',
+  address = 'সৈয়দপুর, নীলফামারী, বাংলাদেশ',
   email = 'support@girlsgalary.com',
   facebookUrl = 'https://facebook.com/girlsgalary',
   copyright = '© 2026 Girlsgalary. All rights reserved.'

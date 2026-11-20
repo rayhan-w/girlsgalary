@@ -8,7 +8,7 @@ interface FloatingWhatsAppProps {
 }
 
 export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
-  whatsappNumber = '8801712345678'
+  whatsappNumber = '8801307214246'
 }) => {
   const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
 

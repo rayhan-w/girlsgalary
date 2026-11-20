@@ -11,8 +11,8 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
-  hotline = '01712-345678',
-  whatsappNumber = '8801712345678',
+  hotline = '01307-214246',
+  whatsappNumber = '8801307214246',
   topBarOffer = '🎉 সারা বাংলাদেশে ফ্রি হোম ডেলিভারি ২,০০০ টাকার বেশি অর্ডারে!'
 }) => {
   const { language, setLanguage, t } = useLanguage();

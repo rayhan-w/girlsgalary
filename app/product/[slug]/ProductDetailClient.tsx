@@ -330,8 +330,8 @@ export default function ProductDetailClient({
                 <Truck size={14} className="text-[#b89528]" />
                 <span>
                   {t(
-                    'ডেলিভারি চার্জ: ঢাকা ৳৭০ | ঢাকার বাইরে ৳১৩০ | ২,০০০ টাকার অর্ডারে ফ্রি ডেলিভারি',
-                    'Delivery Charge: Inside Dhaka ৳70 | Outside Dhaka ৳130 | Free Delivery on orders over ৳2,000'
+                    'ডেলিভারি চার্জ: সৈয়দপুর ৳৭০ | সৈয়দপুরের বাইরে ৳১৩০ | ২,০০০ টাকার অর্ডারে ফ্রি ডেলিভারি',
+                    'Delivery Charge: Inside Saidpur ৳70 | Outside Saidpur ৳130 | Free Delivery on orders over ৳2,000'
                   )}
                 </span>
               </p>

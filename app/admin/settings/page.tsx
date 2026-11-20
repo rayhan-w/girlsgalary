@@ -148,7 +148,7 @@ export default function AdminSettingsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
-                <label className="block font-bold text-zinc-800 mb-1">ঢাকা সিটি চার্জ (৳)</label>
+                <label className="block font-bold text-zinc-800 mb-1">সৈয়দপুর শহর চার্জ (৳)</label>
                 <input
                   type="number"
                   value={settings.deliveryChargeInsideDhaka ?? 70}
@@ -158,7 +158,7 @@ export default function AdminSettingsPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-zinc-800 mb-1">ঢাকা সাব-এরিয়া চার্জ (৳)</label>
+                <label className="block font-bold text-zinc-800 mb-1">সৈয়দপুর আশপাশ / রংপুর চার্জ (৳)</label>
                 <input
                   type="number"
                   value={settings.deliveryChargeNearDhaka ?? 100}
@@ -168,7 +168,7 @@ export default function AdminSettingsPage() {
               </div>
 
               <div>
-                <label className="block font-bold text-zinc-800 mb-1">ঢাকার বাইরে সারা দেশ (৳)</label>
+                <label className="block font-bold text-zinc-800 mb-1">সৈয়দপুরের বাইরে সারা দেশ (৳)</label>
                 <input
                   type="number"
                   value={settings.deliveryChargeOutsideDhaka ?? 130}

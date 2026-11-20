@@ -197,7 +197,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
 
             <div className="p-4 bg-zinc-50 border-t border-zinc-200 text-xs text-zinc-500">
               <p className="font-bold text-zinc-900">{t('সহায়তা প্রয়োজন?', 'Need Assistance?')}</p>
-              <p className="text-zinc-600 mt-0.5">Hotline: 01712-345678</p>
+              <p className="text-zinc-600 mt-0.5">Hotline: 01307-214246</p>
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ export default function AdminManualOrderPage() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [district, setDistrict] = useState('Dhaka');
+  const [district, setDistrict] = useState('Saidpur');
   const [orderNote, setOrderNote] = useState('Created manually from Phone/Messenger');
 
   // Items selection

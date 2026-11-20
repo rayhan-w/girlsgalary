@@ -43,7 +43,8 @@ export default async function InvoicePage({
               GIRLS<span className="text-amber-700">GALARY</span>
             </h1>
             <p className="text-xs text-zinc-600 mt-1">Ladies Ecommerce Shop, Bangladesh</p>
-            <p className="text-xs text-zinc-600">হটলাইন: {settings?.hotline || '01712-345678'}</p>
+            <p className="text-xs text-zinc-600">হটলাইন: {settings?.hotline || '01307-214246'}</p>
+            <p className="text-xs text-zinc-600">ঠিকানা: {settings?.address || 'সৈয়দপুর, নীলফামারী, বাংলাদেশ'}</p>
           </div>
 
           <div className="text-right">
@@ -165,7 +166,7 @@ export default async function InvoicePage({
           <div className="text-right">
             <span className="text-[10px] block">COD সংগ্রহযোগ্য টাকা:</span>
             <span className="text-xl font-black block mt-1">{formatPrice(order.grandTotal)}</span>
-            <span className="text-[10px] text-zinc-500 block mt-2">প্রেরক: Girlsgalary (01712-345678)</span>
+            <span className="text-[10px] text-zinc-500 block mt-2">প্রেরক: Girlsgalary (01307-214246), সৈয়দপুর, নীলফামারী</span>
           </div>
         </div>
       </div>
