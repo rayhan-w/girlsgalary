@@ -162,14 +162,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileMenu }) => {
         {/* Center: Signature AMIRÁ Style Centered Logo */}
         <div className="flex flex-col items-center justify-center text-center lg:w-1/3">
           <Link href="/" className="flex flex-col items-center group">
-            <div className="relative h-12 sm:h-14 w-28 sm:w-36 flex-shrink-0 flex items-center justify-center">
+            <div className="relative h-11 sm:h-13 flex-shrink-0 flex items-center justify-center">
               <img
                 src="/images/logo.png"
                 alt="Girlsgalary"
-                className="h-full w-full object-contain filter group-hover:scale-105 transition-transform duration-300"
+                className="h-full w-auto object-contain drop-shadow-xs group-hover:scale-105 transition-transform duration-300"
               />
             </div>
-            <span className="text-xs tracking-[0.25em] font-serif font-black text-zinc-900 uppercase -mt-0.5 group-hover:text-[#b89528] transition-colors">
+            <span className="text-xs tracking-[0.25em] font-serif font-black text-zinc-900 uppercase mt-0.5 group-hover:text-[#b89528] transition-colors">
               GIRLS<span className="text-[#b89528]">GALARY</span>
             </span>
           </Link>
