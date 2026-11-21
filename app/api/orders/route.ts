@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getZoneForDistrict } from '@/lib/districts';
+import { sendFacebookServerEvent } from '@/lib/facebook-capi';
 
 export async function POST(req: Request) {
   try {
@@ -193,6 +194,39 @@ export async function POST(req: Request) {
     });
 
     console.log(`[SMS Gateway Simulated] Sent to ${phone}: Dear ${fullName}, your Girlsgalary order ${orderNumber} for ৳${grandTotal} has been placed successfully!`);
+
+    // Trigger Facebook Conversions API (CAPI) for 100% accurate Purchase tracking
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined;
+    const userAgent = req.headers.get('user-agent') || undefined;
+    const cookieHeader = req.headers.get('cookie') || '';
+    const fbpMatch = cookieHeader.match(/_fbp=([^;]+)/);
+    const fbcMatch = cookieHeader.match(/_fbc=([^;]+)/);
+
+    sendFacebookServerEvent({
+      eventName: 'Purchase',
+      eventId: order.orderNumber,
+      eventSourceUrl: 'https://girlsglory.com/checkout',
+      userData: {
+        phone,
+        fullName,
+        city: district,
+        clientIpAddress: ip,
+        clientUserAgent: userAgent,
+        fbp: fbpMatch ? fbpMatch[1] : undefined,
+        fbc: fbcMatch ? fbcMatch[1] : undefined,
+      },
+      customData: {
+        currency: 'BDT',
+        value: order.grandTotal,
+        orderId: order.orderNumber,
+        contentType: 'product',
+        contents: validatedItems.map((item) => ({
+          id: item.productId,
+          quantity: item.quantity,
+          item_price: item.price,
+        })),
+      },
+    }).catch((err) => console.error('[Facebook CAPI Background Error]', err));
 
     return NextResponse.json({
       success: true,

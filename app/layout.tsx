@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import FacebookPixel from '@/components/FacebookPixel';
 
 export const metadata: Metadata = {
   title: 'Girlsgalary | Ladies Ecommerce - Saree, Three Piece, Kurti, Cosmetics & Jewellery',
@@ -16,7 +17,12 @@ export const metadata: Metadata = {
     description: 'Cash on delivery all over Bangladesh. Authentic Sarees, Three-Pieces, Kurtis, Cosmetics & Hijabs.',
     type: 'website',
     images: ['/images/logo.png']
-  }
+  },
+  verification: {
+    other: {
+      'facebook-domain-verification': 's3bis6anuoon3twj6vuz8ipxny10kk',
+    },
+  },
 };
 
 export default function RootLayout({
@@ -26,9 +32,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="bn" className="h-full">
+      <head>
+        <meta name="facebook-domain-verification" content="s3bis6anuoon3twj6vuz8ipxny10kk" />
+      </head>
       <body className="min-h-full flex flex-col font-sans bg-white text-zinc-900 antialiased">
         <LanguageProvider>
           <CartProvider>
+            <FacebookPixel />
             {children}
           </CartProvider>
         </LanguageProvider>

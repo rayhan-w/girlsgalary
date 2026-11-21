@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { trackViewContent } from '@/lib/fpixel';
 import {
   ShoppingBag,
   Zap,
@@ -42,6 +43,21 @@ export default function ProductDetailClient({
 }: ProductDetailClientProps) {
   const { addToCart, buyNow, toggleWishlist, isInWishlist } = useCart();
   const { language, t } = useLanguage();
+
+  useEffect(() => {
+    if (product && product.id) {
+      try {
+        trackViewContent({
+          id: product.id,
+          name: product.name,
+          category: product.category?.name,
+          price: product.offerPrice || product.regularPrice,
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [product]);
 
   // Parse images
   const images: string[] = useMemo(() => {

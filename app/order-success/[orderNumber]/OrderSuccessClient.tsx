@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle, Truck, Package, Home } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
+import { trackPurchase } from '@/lib/fpixel';
 
 interface OrderSuccessClientProps {
   order: any;
@@ -16,6 +17,21 @@ export default function OrderSuccessClient({
   deliveryEstimate
 }: OrderSuccessClientProps) {
   const { language, t } = useLanguage();
+
+  useEffect(() => {
+    if (order && order.orderNumber) {
+      trackPurchase({
+        orderNumber: order.orderNumber,
+        grandTotal: order.grandTotal,
+        items: order.items?.map((item: any) => ({
+          productId: item.productId,
+          name: item.productName || item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+      });
+    }
+  }, [order]);
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16">

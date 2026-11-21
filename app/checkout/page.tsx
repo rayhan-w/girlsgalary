@@ -18,6 +18,7 @@ import { useCart } from '@/context/CartContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { formatPrice } from '@/lib/utils';
 import { BANGLADESH_DISTRICTS, getZoneForDistrict } from '@/lib/districts';
+import { trackInitiateCheckout } from '@/lib/fpixel';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -55,6 +56,20 @@ export default function CheckoutPage() {
       .then((res) => res.json())
       .then((data) => !data.error && setSettings(data))
       .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      trackInitiateCheckout(
+        cart.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        cartSubtotal
+      );
+    }
   }, []);
 
   // When district changes, update default delivery zone

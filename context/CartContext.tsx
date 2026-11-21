@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem } from '@/lib/types';
+import { trackAddToCart } from '@/lib/fpixel';
 
 interface CartContextType {
   cart: CartItem[];
@@ -65,6 +66,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [wishlist, isLoaded]);
 
   const addToCart = (item: CartItem) => {
+    try {
+      trackAddToCart({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+
     setCart((prev) => {
       const existingIndex = prev.findIndex(
         (i) => i.productId === item.productId && i.variantId === item.variantId
@@ -81,6 +93,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const buyNow = (item: CartItem) => {
+    try {
+      trackAddToCart({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      });
+    } catch (e) {
+      console.error(e);
+    }
     setCart([item]);
     window.location.href = '/checkout';
   };

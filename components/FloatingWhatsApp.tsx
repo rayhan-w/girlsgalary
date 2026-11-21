@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
+import { trackContact } from '@/lib/fpixel';
 
 interface FloatingWhatsAppProps {
   whatsappNumber?: string;
@@ -17,6 +18,13 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
       href={`https://wa.me/${cleanNumber}?text=${encodeURIComponent('Hello Girlsgalary, I want to know more about your collection.')}`}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => {
+        try {
+          trackContact('WhatsApp');
+        } catch (e) {
+          console.error(e);
+        }
+      }}
       className="fixed bottom-20 sm:bottom-8 right-4 z-30 flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba59] text-white p-3 sm:px-4 sm:py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all group"
       aria-label="Chat on WhatsApp"
     >
